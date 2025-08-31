@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Редактор турнира</title>
+	<link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	body {
+		background: #ffffff;
+		color: #333333;
+		min-height: 100vh;
+		padding: 20px;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+	}
+
+	header {
+		text-align: center;
+		padding: 15px;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	h1 {
+		font-size: 1.8rem;
+		margin-bottom: 8px;
+		color: #1976d2;
+	}
+
+	.tournament-editor {
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		padding: 25px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	.form-group {
+		margin-bottom: 20px;
+	}
+
+	label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 600;
+		color: #0d47a1;
+		font-size: 0.95rem;
+	}
+
+	select, input[type="text"], input[type="datetime-local"] {
+		width: 100%;
+		padding: 10px 12px;
+		background: rgba(255, 255, 255, 0.9);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		font-size: 0.95rem;
+		transition: all 0.2s ease;
+	}
+
+	select:focus, input[type="text"]:focus, input[type="datetime-local"]:focus {
+		outline: none;
+		border-color: #1976d2;
+		box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+	}
+
+	.checkbox-container {
+		background: rgba(255, 255, 255, 0.9);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		padding: 10px 10px 2px 10px;
+		max-height: 120px;
+		overflow-y: auto;
+	}
+
+	.checkbox-item {
+		display: flex;
+		align-items: center;
+		margin-bottom: 8px;
+		padding: 5px;
+		border-radius: 4px;
+		transition: background-color 0.2s ease;
+	}
+
+	.checkbox-item:hover {
+		background-color: rgba(25, 118, 210, 0.05);
+	}
+
+	.checkbox-item input[type="checkbox"] {
+		margin-right: 10px;
+		width: 16px;
+		height: 16px;
+		cursor: pointer;
+	}
+
+	.checkbox-item label {
+		margin: 0;
+		font-weight: normal;
+		cursor: pointer;
+		flex: 1;
+	}
+
+	.time-controls {
+		display: flex;
+		gap: 10px;
+		margin-top: 10px;
+	}
+
+	.time-controls button {
+		flex: 1;
+		padding: 8px;
+		background: rgba(224, 224, 224, 0.6);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		cursor: pointer;
+		font-size: 0.9rem;
+		transition: all 0.2s ease;
+	}
+
+	.time-controls button:hover {
+		background: rgba(200, 200, 200, 0.7);
+		transform: translateY(-2px);
+	}
+
+	.btn-save {
+		width: 100%;
+		padding: 12px;
+		background: #1976d2;
+		color: white;
+		border: none;
+		border-radius: 8px;
+		cursor: pointer;
+		font-size: 1rem;
+		font-weight: 600;
+		transition: all 0.2s ease;
+		margin-top: 10px;
+	}
+
+	.btn-save:hover {
+		background: #1565c0;
+		transform: translateY(-2px);
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+	}
+
+	.btn-save i {
+		margin-right: 8px;
+	}
+
+	.error {
+		color: #d32f2f;
+		font-size: 0.85em;
+		margin-top: 6px;
+		padding-left: 5px;
+	}
+	</style>
+</head>
+<body>
+
+<div class="container">
+
+	<div class="tournament-editor">
+		<div class="form-group">
+			<label for="project"><i class="fa-solid fa-diagram-project"></i> Проект:</label>
+			<select id="project"></select>
+			<span class="error-message" id="project-error"></span>
+		</div>
+		
+		<div class="form-group">
+			<label for="owner"><i class="fa-solid fa-user"></i> Владелец:</label>
+			<select id="owner"></select>
+			<span class="error-message" id="owner-error"></span>
+		</div>
+		
+		<div class="form-group">
+			<label for="display_name"><i class="fa-solid fa-signature"></i> Название турнира:</label>
+			<input type="text" id="display_name" placeholder="Введите название турнира">
+			<span class="error-message" id="display_name-error"></span>
+		</div>
+		
+		<div class="form-group">
+			<label for="time_start"><i class="fa-solid fa-clock"></i> Начало:</label>
+			<input type="datetime-local" id="time_start">
+			<span class="error-message" id="time_start-error"></span>
+			<div class="start-time-controls time-controls">
+				<button data-offset="0">Сейчас</button>
+				<button data-offset="1800">Через 30 мин</button>
+				<button data-offset="2700">Через 45 мин</button>
+				<button data-offset="3600">Через 1 час</button>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label for="time_end"><i class="fa-solid fa-hourglass-end"></i> Окончание:</label>
+			<input type="datetime-local" id="time_end">
+			<span class="error-message" id="time_end-error"></span>
+			<div class="end-time-controls time-controls">
+				<button data-offset="2700"><i class="fa-solid fa-clock"></i> + 45 мин</button>
+				<button data-offset="5400"><i class="fa-solid fa-clock"></i> + 1 час 30 минут</button>
+				<button data-offset="86400"><i class="fa-solid fa-clock"></i> + 1 день</button>
+				<button data-offset="315360000"><i class="fa-solid fa-clock"></i> + 10 лет</button>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label for="time_freeze"><i class="fa-solid fa-snowflake"></i> Заморозка:</label>
+			<input type="datetime-local" id="time_freeze">
+			<span class="error-message" id="time_freeze-error"></span>
+			<div class="freeze-time-controls time-controls">
+				<button data-offset="0"><i class="fa-solid fa-hourglass-end"></i> - 0 мин</button>
+				<button data-offset="1800"><i class="fa-solid fa-hourglass-end"></i> - 30 мин</button>
+				<button data-offset="3600"><i class="fa-solid fa-hourglass-end"></i> - 1 час</button>
+				<button data-offset="7200"><i class="fa-solid fa-hourglass-end"></i> - 2 часа</button>
+			</div>
+		</div>
+		
+		<div class="form-group">
+			<label for="groups"><i class="fa-solid fa-users"></i> Группы участников:</label>
+			<div id="groups-container" class="checkbox-container"></div>
+			<span class="error-message" id="groups-error"></span>
+		</div>
+		
+		<div class="form-group">
+			<label for="groups"><i class="fa-solid fa-save"></i> Управление</label>
+			<div class="time-controls">
+				<button class="tool-btn" onclick="top.openTurnirTable()">
+					<i class="fas fa-border-all"></i> Открыть турнирную таблицу
+				</button>
+			</div>
+		</div>
+	</div>
+
+	<style>
+		.error-message {
+			color: #d9534f;
+			font-size: 12px;
+			margin-top: 5px;
+			display: block;
+		}
+		
+		input.error, select.error {
+			border-color: #d9534f;
+		}
+	</style>
+
+	<script>
+		window.projects =[];
+		window.turnir =[];
+		window.users =[];
+		window.groups =[];
+		window.formChanged = false;
+		window.validationTimer = null;
+		
+	  // Вспомогательные функции для работы с датами
+	  function timestampToLocalInput(timestamp) {
+		const date = new Date(timestamp * 1000);
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		const hours = String(date.getHours()).padStart(2, '0');
+		const minutes = String(date.getMinutes()).padStart(2, '0');
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	  }
+
+	  function localInputToTimestamp(input) {
+		if (!input) return 0;
+		const date = new Date(input);
+		return Math.floor(date.getTime() / 1000);
+	  }
+
+	  // Инициализация формы
+	  function initForm() {
+		// Заполнение проектов
+		const projectSelect = document.getElementById('project');
+		
+		const option2 = document.createElement('option');
+		option2.value = "";
+		option2.textContent = "Выберите";
+		projectSelect.appendChild(option2);
+		
+		window.projects.forEach(project => {
+		  const option = document.createElement('option');
+		  option.value = project.uid;
+		  option.textContent = project.name;
+		  projectSelect.appendChild(option);
+		});
+		
+		
+		projectSelect.value = window.turnir.project;
+
+		// Заполнение владельцев
+		const ownerSelect = document.getElementById('owner');
+		window.users.forEach(user => {
+		  const option = document.createElement('option');
+		  option.value = user;
+		  option.textContent = user;
+		  ownerSelect.appendChild(option);
+		});
+		ownerSelect.value = window.turnir.owner;
+
+		// Название турнира
+		document.getElementById('display_name').value = window.turnir.display_name;
+
+		// Временные параметры
+		document.getElementById('time_start').value = timestampToLocalInput(window.turnir.time_start);
+		document.getElementById('time_end').value = timestampToLocalInput(window.turnir.time_end);
+		document.getElementById('time_freeze').value = timestampToLocalInput(window.turnir.time_freeze);
+
+		// Группы участников
+		const groupsContainer = document.getElementById('groups-container');
+		groupsContainer.innerHTML = '';
+
+		window.groups.forEach(group => {
+			const checkboxItem = document.createElement('div');
+			checkboxItem.className = 'checkbox-item';
+			
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.id = `group-${group}`;
+			checkbox.value = group;
+			checkbox.checked = window.turnir.group.includes(group);
+			
+			const label = document.createElement('label');
+			label.htmlFor = `group-${group}`;
+			label.textContent = group;
+			
+			checkbox.addEventListener('change', markFormChanged);
+			
+			checkboxItem.appendChild(checkbox);
+			checkboxItem.appendChild(label);
+			groupsContainer.appendChild(checkboxItem);
+		});
+
+		// Обработчики событий
+		document.querySelectorAll('.start-time-controls button').forEach(button => {
+		  button.addEventListener('click', () => {
+			const offset = parseInt(button.dataset.offset);
+			const startTimestamp = localInputToTimestamp(+new Date()) + offset;
+			
+			document.getElementById('time_start').value = timestampToLocalInput(startTimestamp);
+			markFormChanged();
+		  });
+		});
+
+		document.querySelectorAll('.end-time-controls button').forEach(button => {
+		  button.addEventListener('click', () => {
+			const startTime = document.getElementById('time_start').value;
+			if (!startTime) {
+			  showError('time_start', 'Сначала установите время начала');
+			  return;
+			}
+			
+			
+			const offset = parseInt(button.dataset.offset);
+			const startTimestamp = localInputToTimestamp(startTime);
+			const endTimestamp = startTimestamp + offset;
+			
+			document.getElementById('time_end').value = timestampToLocalInput(endTimestamp);
+			markFormChanged();
+		  });
+		});
+
+		document.querySelectorAll('.freeze-time-controls button').forEach(button => {
+		  button.addEventListener('click', () => {
+			const endTime = document.getElementById('time_end').value;
+			if (!endTime) {
+			  showError('time_end', 'Сначала установите время окончания');
+			  return;
+			}
+			
+			const offset = parseInt(button.dataset.offset);
+			const endTimestamp = localInputToTimestamp(endTime);
+			const freezeTimestamp = endTimestamp - offset;
+			
+			document.getElementById('time_freeze').value = timestampToLocalInput(freezeTimestamp);
+			markFormChanged();
+		  });
+		});
+
+		document.getElementById('project').addEventListener('change', () => {
+			setTimeout(()=>{
+				const name = document.getElementById('display_name').value;
+				if (window.projects.map(x=>x.name).includes(name) || name.trim() == "") {
+					document.getElementById('display_name').value = window.projects.filter(x=>x.uid==document.getElementById('project').value)[0].name;
+				}
+				markFormChanged();
+			});
+		});
+		
+		// Добавляем обработчики изменений для всех полей ввода
+		const allInputs = document.querySelectorAll('input, select');
+		allInputs.forEach(input => {
+			input.addEventListener('change', markFormChanged);
+			input.addEventListener('input', function() {
+				clearError(this.id);
+			});
+		});
+	  }
+	  
+	  // Показать ошибку для поля
+	  function showError(fieldId, message) {
+		const errorElement = document.getElementById(fieldId + '-error');
+		if (errorElement) {
+			errorElement.textContent = message;
+			document.getElementById(fieldId).classList.add('error');
+		}
+	  }
+	  
+	  // Очистить ошибку для поля
+	  function clearError(fieldId) {
+		const errorElement = document.getElementById(fieldId + '-error');
+		if (errorElement) {
+			errorElement.textContent = '';
+			document.getElementById(fieldId).classList.remove('error');
+		}
+	  }
+	  
+	  // Отметить, что форма изменена
+	  function markFormChanged() {
+		window.formChanged = true;
+		validateAndSave();
+	  }
+
+	  // Проверка временных ограничений
+	  function validateTimes() {
+		const start = localInputToTimestamp(document.getElementById('time_start').value);
+		const freeze = localInputToTimestamp(document.getElementById('time_freeze').value);
+		const end = localInputToTimestamp(document.getElementById('time_end').value);
+		
+		if (!start) return ['Укажите время начала', '', ''];
+		if (!freeze) return ['','Укажите время заморозки',''];
+		if (!end) return ['','','Укажите время окончания'];
+		if (start > freeze) return ['','Заморозка не может быть раньше начала',''];
+		if (freeze > end) return ['','Окончание не может быть раньше заморозки','Окончание не может быть раньше заморозки'];
+		if (start > end) return ['','','Окончание не может быть раньше начала'];
+		
+		return null;
+	  }
+	  
+	  // Проверка всех полей формы
+	  function validateForm() {
+		let isValid = true;
+		
+		// Очищаем все ошибки
+		document.querySelectorAll('.error-message').forEach(el => {
+			el.textContent = '';
+		});
+		document.querySelectorAll('.error').forEach(el => {
+			el.classList.remove('error');
+		});
+		
+		// Проверяем проект
+		if (!document.getElementById('project').value) {
+			showError('project', 'Выберите проект');
+			isValid = false;
+		}
+		
+		// Проверяем владельца
+		if (!document.getElementById('owner').value) {
+			showError('owner', 'Выберите владельца');
+			isValid = false;
+		}
+		
+		// Проверяем название
+		if (!document.getElementById('display_name').value.trim()) {
+			showError('display_name', 'Введите название турнира');
+			isValid = false;
+		}
+		
+		// Проверяем временные параметры
+		const timeError = validateTimes();
+		if (timeError) {
+			if (timeError[0]) showError('time_start', timeError[0]);
+			if (timeError[1]) showError('time_freeze', timeError[1]);
+			if (timeError[2]) showError('time_end', timeError[2]);
+			isValid = false;
+		}
+		
+		// Проверяем группы
+		//if (document.getElementById('groups').selectedOptions.length === 0) {
+		//	showError('groups', 'Выберите хотя бы одну группу');
+		//	isValid = false;
+		//}
+		
+		// Показываем статус валидации
+		
+		return isValid;
+	  }
+
+	  // Сохранение параметров
+	  function saveTournament() {
+		// Обновление глобального объекта турнира
+		window.turnir = {
+			project: document.getElementById('project').value,
+			owner: document.getElementById('owner').value,
+			display_name: document.getElementById('display_name').value,
+			time_start: localInputToTimestamp(document.getElementById('time_start').value),
+			time_freeze: localInputToTimestamp(document.getElementById('time_freeze').value),
+			time_end: localInputToTimestamp(document.getElementById('time_end').value),
+			group: Array.from(document.querySelectorAll('#groups-container input[type="checkbox"]:checked'))
+				.map(checkbox => checkbox.value)
+		};
+		
+		editorUpdateValue();
+		window.formChanged = false;
+		
+		// Показываем статус сохранения
+	  }
+	  
+	  // Проверить и сохранить форму
+	  function validateAndSave() {
+			const isValid = validateForm();
+			if (isValid && window.formChanged) {
+				saveTournament();
+			}
+		}
+	  
+	  const editorPrefix = 'turnir';
+		
+	  let last_editorUpdateValue = '';
+	  let timer_editorUpdateValue = 0;
+		
+	  function editorUpdateValue() {
+		let s = JSON.stringify(window.turnir);
+		editorPostMessage('PreSetValue');
+			
+		if (s != last_editorUpdateValue) {
+			last_editorUpdateValue = s;
+			if (timer_editorUpdateValue) clearTimeout(timer_editorUpdateValue);
+			timer_editorUpdateValue = setTimeout(() => {
+				editorPostMessage('SetValue', window.turnir);
+			}, 500);
+		}
+	  }
+	  
+	  function editorPostMessage (type, value) {
+		window.parent.postMessage({ type: editorPrefix+type, value: JSON.stringify(value) }, '*');
+	  }
+		
+	  function updateIframeHeight() {
+		const height = document.body.scrollHeight;
+		editorPostMessage('SetHeight', height);
+	  }
+		
+	  window.addEventListener('load', () => {
+		if (window.self !== window.top) {
+			window.addEventListener('message', function(event) {
+				if (event.data.type && event.data.type === editorPrefix+'SetData') {
+					Object.assign(window.turnir, JSON.parse(event.data.value));
+						
+					window.users = JSON.parse(event.data.additional.users);
+					window.groups = JSON.parse(event.data.additional.groups);
+					window.projects = JSON.parse(event.data.additional.projects);
+					initForm();
+					validateForm();
+				}
+			});
+				
+			updateIframeHeight();
+			window.addEventListener('resize', updateIframeHeight);
+			editorPostMessage('Init');
+		}
+	  });
+
+	</script>
+</body>
+</html>

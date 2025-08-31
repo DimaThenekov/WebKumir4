@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Редактор пользователя</title>
+	<link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	body {
+		background: #ffffff;
+		color: #333333;
+		min-height: 100vh;
+		padding: 20px;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		max-width: 800px;
+		margin: 0 auto;
+		gap: 15px;
+	}
+
+	header {
+		text-align: center;
+		padding: 15px;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	h1 {
+		font-size: 1.8rem;
+		margin-bottom: 8px;
+		color: #1976d2;
+	}
+
+	.user-editor {
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		padding: 25px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	.form-group {
+		margin-bottom: 20px;
+		position: relative;
+	}
+
+	label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 600;
+		color: #0d47a1;
+		font-size: 0.95rem;
+	}
+
+	select, input[type="text"], input[type="password"] {
+		width: 100%;
+		padding: 10px 12px;
+		background: rgba(255, 255, 255, 0.9);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		border-radius: 8px;
+		font-size: 0.95rem;
+		transition: all 0.2s ease;
+	}
+
+	select:focus, input[type="text"]:focus, input[type="password"]:focus {
+		outline: none;
+		border-color: #1976d2;
+		box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+	}
+
+	.password-container {
+		position: relative;
+	}
+
+	.toggle-password {
+		position: absolute;
+		right: 10px;
+		top: 50%;
+		transform: translateY(-50%);
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #666;
+	}
+
+	.error {
+		color: #d32f2f;
+		font-size: 0.85em;
+		margin-top: 6px;
+		padding-left: 5px;
+	}
+
+	.strength-weak {
+		background-color: #d32f2f;
+		width: 33%;
+	}
+
+	.strength-medium {
+		background-color: #ff9800;
+		width: 66%;
+	}
+
+	.strength-strong {
+		background-color: #4caf50;
+		width: 100%;
+	}
+
+	.strength-text {
+		font-size: 0.8rem;
+		margin-top: 5px;
+		text-align: right;
+	}
+	
+	.status-message {
+		padding: 10px;
+		border-radius: 8px;
+		margin-top: 15px;
+		text-align: center;
+		font-size: 0.9rem;
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+	
+	.status-success {
+		background-color: #e8f5e9;
+		color: #2e7d32;
+		opacity: 1;
+	}
+	
+	.status-error {
+		background-color: #ffebee;
+		color: #d32f2f;
+		opacity: 1;
+	}
+	</style>
+</head>
+<body>
+
+<div class="container">
+
+	<div class="user-editor">
+		<div class="form-group">
+			<label for="name"><i class="fa-solid fa-signature"></i> Имя пользователя:</label>
+			<input type="text" id="name" placeholder="Введите имя пользователя">
+			<span id="name-error" class="error"></span>
+		</div>
+		
+		<div class="form-group">
+			<label for="password"><i class="fa-solid fa-lock"></i> Пароль:</label>
+			<div class="password-container">
+				<input type="password" id="password" autocomplete="off" placeholder="Введите новый пароль (оставьте пустым, чтобы не менять)">
+				<button type="button" id="toggle-password" class="toggle-password">
+					<i class="fa-solid fa-eye"></i>
+				</button>
+			</div>
+			<div id="password-strength-text" class="strength-text"></div>
+		</div>
+		
+		<div class="form-group">
+			<label for="group"><i class="fa-solid fa-users"></i> Группа:</label>
+			<select id="group"></select>
+		</div>
+	</div>
+
+	<script>
+		window.user = {
+			name: "Иван Иванов",
+			password: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+			group: 'u'
+		};
+		
+		window.users = [];
+		window.groups = [];
+		window.update_data = {};
+
+		// Таймер для автоматического сохранения
+		let saveTimer = null;
+		const SAVE_DELAY = 1000; // 1 секунда после последнего изменения
+
+		// Инициализация формы
+		function initForm() {
+			// Заполнение имени пользователя
+			document.getElementById('name').value = window.user.name;
+
+			const groupsSelect = document.getElementById('group');
+			window.groups.forEach(group => {
+				const option = document.createElement('option');
+				option.value = group;
+				option.textContent = group;
+				groupsSelect.appendChild(option);
+			});
+
+			// Заполнение группы
+			document.getElementById('group').value = window.user.group;
+
+			// Обработчики событий
+			document.getElementById('toggle-password').addEventListener('click', togglePasswordVisibility);
+			document.getElementById('password').addEventListener('input', checkPasswordStrength);
+			
+			// Добавляем обработчики для автоматического сохранения
+			document.getElementById('name').addEventListener('input', handleFormChange);
+			document.getElementById('password').addEventListener('input', handleFormChange);
+			document.getElementById('group').addEventListener('change', handleFormChange);
+			
+			// Первоначальная проверка валидности
+			validateForm();
+		}
+
+		// Обработчик изменений в форме
+		function handleFormChange() {
+			if (!validateForm()) return;
+			
+			const password = document.getElementById('password').value;
+			hashPassword(password).then((hashedPassword)=> {
+				// Обновление глобального объекта пользователя
+				window.user.name = document.getElementById('name').value;
+				window.user.password = hashedPassword;
+				window.user.group = document.getElementById('group').value;
+				if (!window.user.personage) window.user.personage = [0, 1, 1, 1, 1, 1];
+				if (!window.user.map_data) window.user.map_data = {};
+				editorUpdateValue();
+			});
+		}
+
+		// Переключение видимости пароля
+		function togglePasswordVisibility() {
+			const passwordInput = document.getElementById('password');
+			const toggleButton = document.getElementById('toggle-password');
+			
+			if (passwordInput.type === 'password') {
+				passwordInput.type = 'text';
+				toggleButton.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+			} else {
+				passwordInput.type = 'password';
+				toggleButton.innerHTML = '<i class="fa-solid fa-eye"></i>';
+			}
+		}
+
+		// Проверка сложности пароля
+		function checkPasswordStrength() {
+			const password = document.getElementById('password').value;
+			const strengthText = document.getElementById('password-strength-text');
+			
+			if (!password) {
+				strengthText.textContent = '';
+				return true;
+			}
+			
+			let error = '';
+			
+			for (var i = 0; i < password.length; i++) {
+				if (!('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@()[]:-'.indexOf(password[i]) + 1)) {
+					error = 'Поле с паролем содержит запрещённый символ (' + password[i] + ')';
+					break;
+				}
+			}
+			
+			if (!error && password.length < 3) {
+				error = 'Поле с паролем содержит слишком мало символов';
+			}
+			if (!error && password.length >= 32) {
+				error = 'Поле с паролем содержит слишком много символов';
+			}
+			
+			if (error) {
+				strengthText.textContent = error;
+				strengthText.style.color = '#d32f2f';
+				return false;
+			} else {
+				strengthText.textContent = '';
+				return true;
+			}
+		}
+
+		// Проверка валидности имени
+		function validateName() {
+			const name = document.getElementById('name').value;
+			const errorElement = document.getElementById('name-error');
+			
+			if (!name.trim()) {
+				errorElement.textContent = 'Ошибка: Имя пользователя не может быть пустым';
+				return false;
+			}
+			
+			let error = '';
+			
+			
+			
+			for (var i = 0; i < name.length; i++) {
+				if (!('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZабвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ0123456789@()[]:-. '.indexOf(name[i]) + 1)) {
+					error = 'Поле с именем содержит запрещённый символ (' + name[i] + ')';
+					break;
+				}
+			}
+			
+			if (!error && window.users.includes(name.trim())) {
+				error = 'Это имя уже занято!';
+			}
+			
+			if (!error && name.length < 3) {
+				error = 'Поле с именем содержит слишком мало символов';
+			}
+			if (!error && encodeURI(name).length >= 256) {
+				error = 'Поле с именем содержит слишком много символов';
+			}
+			
+			if (error) {
+				errorElement.textContent = error;
+				return false;
+			} else {
+				errorElement.textContent = '';
+				return true;
+			}
+		}
+
+		// Проверка валидности данных всей формы
+		function validateForm() {
+			const isNameValid = validateName();
+			const isPasswordValid = checkPasswordStrength();
+			
+			return isNameValid && isPasswordValid;
+		}
+
+		// Хэширование пароля (упрощенная версия)
+		async function hashPassword(password) {
+			if (!password) return window.user.password;
+			
+			// В реальном приложении здесь должно быть настоящее хэширование
+			const encoder = new TextEncoder();
+			const data = encoder.encode(password);
+			const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+			const hashArray = Array.from(new Uint8Array(hashBuffer));
+			return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+		}
+
+
+
+
+
+
+		
+		// Функции для работы с родительским окном
+		const editorPrefix = 'user';
+		
+		let last_editorUpdateValue = '';
+		let timer_editorUpdateValue = 0;
+		
+		function editorUpdateValue() {
+			let s = JSON.stringify(window.user);
+			editorPostMessage('PreSetValue');
+			
+			if (s!=last_editorUpdateValue) {
+				last_editorUpdateValue = s;
+				if (timer_editorUpdateValue) clearTimeout(timer_editorUpdateValue);
+				timer_editorUpdateValue = setTimeout(()=>{
+					top.server_request('admin_edit', window.update_data, (d)=>{
+						window.user.map_data = d.map_data;
+						window.user.personage = d.personage;
+						editorPostMessage('SetValue', window.user);
+					});
+				}, 500);
+			}
+		}
+		
+		function editorPostMessage(type, value) {
+			window.parent.postMessage({ type: editorPrefix + type, value: JSON.stringify(value) }, '*');
+		}
+		
+		function updateIframeHeight() {
+			const height = document.body.scrollHeight;
+			editorPostMessage('SetHeight', height);
+		}
+		
+		// Инициализация при загрузке
+		window.addEventListener('load', () => {
+			if (window.self !== window.top) {
+				window.addEventListener('message', function(event) {
+					if (event.data.type && event.data.type === editorPrefix + 'SetData') {
+						Object.assign(window.user, JSON.parse(event.data.value));
+						Object.assign(window.update_data, JSON.parse(event.data.update_data));
+						Object.assign(window.users, JSON.parse(event.data.additional.users));
+						Object.assign(window.groups, JSON.parse(event.data.additional.groups));
+						initForm();
+					}
+				});
+				
+				updateIframeHeight();
+				window.addEventListener('resize', updateIframeHeight);
+				editorPostMessage('Init');
+			} else {
+				// Для локального тестирования
+				initForm();
+			}
+		});
+	</script>
+</body>
+</html>

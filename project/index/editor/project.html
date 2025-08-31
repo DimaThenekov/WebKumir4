@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Настройки проекта</title>
+    <link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: #ffffff;
+        color: #333333;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        max-width: 800px;
+        margin: 0 auto;
+        gap: 15px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        color: #1976d2;
+    }
+
+    .project-settings {
+        background: rgba(245, 245, 245, 0.9);
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #0d47a1;
+        font-size: 0.95rem;
+    }
+
+    input[type="text"] {
+        width: 100%;
+        padding: 10px 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
+    .btn {
+        padding: 10px 15px;
+        background: #1976d2;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .btn:hover {
+        background: #1565c0;
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: #78909c;
+    }
+
+    .btn-secondary:hover {
+        background: #546e7a;
+    }
+
+    .tasks-list, .tests-list {
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+
+    .task-item, .test-item {
+        padding: 12px 15px;
+        background: white;
+        border-bottom: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+	.task-item.task-item-right, .test-item.test-item-right .test-info {
+		color: #0f0;
+	}
+	
+	.task-item.task-item-not-right, .test-item.test-item-not-right .test-info {
+		color: #f00;
+	}
+
+    .task-item:last-child, .test-item:last-child {
+        border-bottom: none;
+    }
+
+    .task-handle, .test-handle {
+        cursor: move;
+        padding: 5px;
+        color: #757575;
+    }
+
+    .task-content, .test-content {
+        flex-grow: 1;
+        margin: 0 10px;
+    }
+
+    .task-actions, .test-actions {
+        display: flex;
+        gap: 5px;
+    }
+
+    .task-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+
+    .test-info {
+        font-size: 0.9rem;
+        color: #616161;
+    }
+
+    .test-secret {
+        color: #d32f2f;
+        font-size: 0.8rem;
+        margin-left: 10px;
+    }
+
+    .drag-over {
+        background-color: #e3f2fd;
+    }
+
+    .dragging {
+        opacity: 0.7;
+        background-color: #bbdefb;
+    }
+
+    .import-export {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    .task-tests {
+        padding-left: 20px;
+        border-left: 3px solid #e0e0e0;
+    }
+
+    .toggle-tests {
+        background: none;
+        border: none;
+        color: #1976d2;
+        cursor: pointer;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px;
+    }
+
+    .error {
+        color: #d32f2f;
+        font-size: 0.85em;
+        margin-top: 6px;
+        padding-left: 5px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="project-settings">
+            <div class="form-group">
+                <label for="project-name">Название проекта</label>
+                <input type="text" id="project-name" placeholder="Введите название проекта">
+            </div>
+            
+            <div class="form-group">
+                <label>Порядок задач</label>
+                <div id="tasks-list" class="tasks-list">
+                    <!-- Tasks will be rendered here -->
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Управление проектом</label>
+                <div class="import-export">
+                    <button id="import-btn" class="btn btn-secondary">
+                        <i class="fas fa-file-import"></i> Импорт из JSON
+                    </button>
+                    <button id="export-btn" class="btn">
+                        <i class="fas fa-file-export"></i> Экспорт в JSON
+                    </button>
+                    <button onclick="handleRunTest()" class="btn btn-secondary">
+                        <i class="fas fa-play"></i> Проверить все задачи
+                    </button>
+                </div>
+                <input type="file" id="import-file" class="hidden" accept=".json">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.settings = {};
+        window.test_tests = [];
+        window.all_permissions = ['MAIN', 'USER', 'ADMIN'];
+
+        const editorPrefix = 'project';
+        
+        let last_editorUpdateValue = '';
+        let timer_editorUpdateValue = 0;
+        let dragSourceElement = null;
+        
+        // Делегирование событий для уменьшения количества обработчиков
+        document.addEventListener('click', function(e) {
+            // Обработка кликов по кнопкам переключения тестов
+            if (e.target.closest('.toggle-tests')) {
+                const btn = e.target.closest('.toggle-tests');
+                const taskIndex = parseInt(btn.dataset.index);
+                const icon = btn.querySelector('i');
+                const testsContainer = document.getElementById(`tests-${taskIndex}`);
+                
+                if (testsContainer.classList.contains('hidden')) {
+                    testsContainer.classList.remove('hidden');
+                    icon.classList.remove('fa-chevron-down');
+                    icon.classList.add('fa-chevron-up');
+                    btn.innerHTML = '<i class="fas fa-chevron-up"></i> Скрыть тесты';
+                    renderTests(taskIndex, testsContainer);
+                } else {
+                    testsContainer.classList.add('hidden');
+                    icon.classList.remove('fa-chevron-up');
+                    icon.classList.add('fa-chevron-down');
+                    btn.innerHTML = '<i class="fas fa-chevron-down"></i> Показать тесты';
+                }
+                
+                updateIframeHeight();
+            }
+        });
+        
+        // Обработчики для drag and drop
+        document.addEventListener('dragstart', function(e) {
+            if (e.target.classList.contains('task-handle') || e.target.classList.contains('test-handle') || 
+				e.target.classList.contains('task-item') || e.target.classList.contains('test-item')) {
+                const item = e.target.closest('.task-item') || e.target.closest('.test-item');
+                dragSourceElement = item;
+                item.classList.add('dragging');
+                
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', item.dataset.type + '|' + item.dataset.index + '|' + (item.dataset.taskIndex || ''));
+            }
+        });
+        
+        document.addEventListener('dragend', function(e) {
+            if (dragSourceElement) {
+                dragSourceElement.classList.remove('dragging');
+                dragSourceElement = null;
+            }
+        });
+        
+        document.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            if (!dragSourceElement) return;
+            
+            const afterElement = getDragAfterElement(e.clientY, dragSourceElement.dataset.type);
+            const draggable = document.querySelector('.dragging');
+            
+            if (afterElement && afterElement !== draggable) {
+				[...document.querySelectorAll('.drag-over')].map(x=>x.classList.remove('drag-over'));
+                afterElement.classList.add('drag-over');
+            }
+        });
+        
+        document.addEventListener('dragleave', function(e) {
+            // Убираем подсветку при выходе из элемента
+            if (e.target.classList.contains('drag-over')) {
+                e.target.classList.remove('drag-over');
+            }
+        });
+        
+        document.addEventListener('drop', function(e) {
+            e.preventDefault();
+            if (!dragSourceElement) return;
+            
+            const data = e.dataTransfer.getData('text/plain').split('|');
+            const dragType = data[0];
+            const dragIndex = parseInt(data[1]);
+            const dragTaskIndex = data[2] ? parseInt(data[2]) : null;
+            
+            const afterElement = getDragAfterElement(e.clientY, dragType);
+            
+            if (afterElement) {
+                const dropIndex = parseInt(afterElement.dataset.index);
+                const dropTaskIndex = afterElement.dataset.taskIndex ? parseInt(afterElement.dataset.taskIndex) : null;
+                
+                if (dragType === 'task') {
+                    moveTask(dragIndex, dropIndex);
+                } else if (dragType === 'test' && dragTaskIndex !== null && dragTaskIndex === dropTaskIndex) {
+                    moveTest(dragTaskIndex, dragIndex, dropIndex);
+                }
+            }
+            
+            // Убираем подсветку со всех элементов
+            document.querySelectorAll('.drag-over').forEach(el => {
+                el.classList.remove('drag-over');
+            });
+        });
+        
+        function editorUpdateValue() {
+            let s = JSON.stringify(window.settings);
+            editorPostMessage('PreSetValue');
+                
+            if (s != last_editorUpdateValue) {
+				window.test_tests = [];
+                last_editorUpdateValue = s;
+                if (timer_editorUpdateValue) clearTimeout(timer_editorUpdateValue);
+                timer_editorUpdateValue = setTimeout(() => {
+                    editorPostMessage('SetValue', window.settings);
+                }, 500);
+            }
+        }
+        
+        function editorPostMessage (type, value) {
+            window.parent.postMessage({ type: editorPrefix+type, value: JSON.stringify(value) }, '*');
+        }
+            
+        function updateIframeHeight() {
+            const height = document.body.scrollHeight;
+            editorPostMessage('SetHeight', height);
+        }
+            
+		document.getElementById('import-btn').addEventListener('click', handleImport);
+		
+		
+		document.getElementById('export-btn').addEventListener('click', handleExport);
+		
+		// Set up event listeners
+		document.getElementById('project-name').addEventListener('input', function() {
+			window.settings.name = this.value;
+			editorUpdateValue();
+		});
+        
+        // Initialize the settings panel
+        function initForm() {
+            // Set project name
+            document.getElementById('project-name').value = window.settings.name || '';
+            
+            // Render tasks
+            renderTasks();
+            
+        }
+        
+        // Render tasks list
+        function renderTasks() {
+            const tasksList = document.getElementById('tasks-list');
+            tasksList.innerHTML = '';
+            
+            if (!window.settings.tasks || !window.settings.tasks.length) {
+                tasksList.innerHTML = '<div class="task-item">Задачи отсутствуют</div>';
+                return;
+            }
+            
+            window.settings.tasks.forEach((task, index) => {
+                const taskElement = document.createElement('div');
+                taskElement.className = 'task-item' + (window.test_tests[index]?(window.test_tests[index].every(x=>x)?' task-item-right':' task-item-not-right'):'');
+                taskElement.dataset.index = index;
+                taskElement.dataset.type = 'task';
+                taskElement.draggable = true;
+                
+                taskElement.innerHTML = `
+                    <div class="task-handle"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="task-content">
+                        <div class="task-title">${task.name}</div>
+                        <div>Тесты: ${task.tests.length} (${task.tests.filter(t => t.is_secret).length} секретных)</div>
+                    </div>
+                    <button class="toggle-tests" data-index="${index}">
+                        <i class="fas fa-chevron-down"></i> Показать тесты
+                    </button>
+                `;
+                
+                const testsContainer = document.createElement('div');
+                testsContainer.className = 'task-tests hidden';
+                testsContainer.id = `tests-${index}`;
+                
+                tasksList.appendChild(taskElement);
+                tasksList.appendChild(testsContainer);
+            });
+            
+            updateIframeHeight();
+        }
+        
+        // Render tests for a specific task
+        function renderTests(taskIndex, container) {
+            const task = window.settings.tasks[taskIndex];
+            container.innerHTML = '';
+            
+            if (!task.tests || !task.tests.length) {
+                container.innerHTML = '<div class="test-item">Тесты отсутствуют</div>';
+                return;
+            }
+            
+            task.tests.forEach((test, index) => {
+                const testElement = document.createElement('div');
+                testElement.className = 'test-item' + (window.test_tests[taskIndex]&&(typeof window.test_tests[taskIndex][index]=="boolean")?(window.test_tests[taskIndex][index]?' test-item-right':' test-item-not-right'):'');
+                testElement.dataset.index = index;
+                testElement.dataset.taskIndex = taskIndex;
+                testElement.dataset.type = 'test';
+                testElement.draggable = true;
+                
+				
+                
+                // Create a short description for the test
+                const inputPreview = test.input && test.input.length > 30 ? 
+                    test.input.substring(0, 30) + '...' : test.input || '(нет входных данных)';
+                
+                const outputPreview = test.expected_output && test.expected_output.length > 30 ? 
+                    test.expected_output.substring(0, 30) + '...' : test.expected_output || '(нет ожидаемого вывода)';
+                
+                testElement.innerHTML = `
+                    <div class="test-handle"><i class="fas fa-grip-vertical"></i></div>
+                    <div class="test-content">
+                        <div class="test-info">
+                            <div>Ввод: ${inputPreview}</div>
+                            <div>Ожидаемый вывод: ${outputPreview}</div>
+                        </div>
+                        ${test.is_secret ? '<span class="test-secret">Секретный тест</span>' : ''}
+                    </div>
+                `;
+                
+                container.appendChild(testElement);
+            });
+            
+            updateIframeHeight();
+        }
+        
+        // Helper function to determine where to place dragged element
+        function getDragAfterElement(y, type) {
+            const selector = type === 'task' ? '.task-item:not(.dragging)' : '.test-item:not(.dragging)';
+            const draggableElements = [...document.querySelectorAll(selector)];
+            
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height;
+                
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+        
+        // Move task to new position
+        function moveTask(fromIndex, toIndex) {
+            if (fromIndex === toIndex) return;
+            
+            const tasks = window.settings.tasks;
+            [tasks[fromIndex], tasks[toIndex]] = [tasks[toIndex], tasks[fromIndex]];
+            
+            editorUpdateValue();
+            renderTasks();
+            updateIframeHeight();
+        }
+        
+        // Move test to new position within a task
+        function moveTest(taskIndex, fromIndex, toIndex) {
+            if (fromIndex === toIndex) return;
+            
+            const tests = window.settings.tasks[taskIndex].tests;
+            [tests[fromIndex], tests[toIndex]] = [tests[toIndex], tests[fromIndex]];
+            
+            editorUpdateValue();
+            
+            // Обновляем только конкретный контейнер с тестами
+            const testsContainer = document.getElementById(`tests-${taskIndex}`);
+            if (testsContainer && !testsContainer.classList.contains('hidden')) {
+                renderTests(taskIndex, testsContainer);
+            }
+            
+            updateIframeHeight();
+        }
+        
+        // Handle import from JSON file
+        function handleImport(e) {
+			const input = document.createElement('input');
+			input.type = 'file';
+			input.accept = '.json';
+			
+			input.onchange = e => {
+				const file = e.target.files[0];
+				const reader = new FileReader();
+				
+				reader.onload = event => {
+					try {
+						const data = JSON.parse(event.target.result);
+						Object.assign(window.settings, data);
+						initForm();
+						editorUpdateValue();
+						updateIframeHeight();
+					} catch (error) {
+						alert('Ошибка при загрузке файла: неверный формат');
+					}
+				};
+				
+				reader.readAsText(file);
+			};
+			
+			input.click();
+        }
+		
+		function handleRunTest() {
+			top.server_request("test_projects", window.project_uid, (s)=>{window.test_tests = s;renderTasks();});
+		}
+        
+        // Handle export to JSON file
+        function handleExport() {
+            const dataStr = JSON.stringify(window.settings, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `${window.settings.name || 'project'}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+        }
+        
+        window.addEventListener('load', () => {
+            if (window.self !== window.top) {
+                window.addEventListener('message', function(event) {
+                    if (event.data.type && event.data.type === editorPrefix+'SetData') {
+                        Object.assign(window.settings, JSON.parse(event.data.value));
+                        window.project_uid = event.data.additional.project_uid;
+                        initForm();
+                    }
+                });
+                    
+                updateIframeHeight();
+                window.addEventListener('resize', updateIframeHeight);
+                editorPostMessage('Init');
+            }
+        });
+    </script>
+</body>
+</html>

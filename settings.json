@@ -1,0 +1,23 @@
+{
+	"project": {
+		"port": 80,
+		"admin_login": "admin",
+		"admin_password": "test"
+	},
+	"$project2": {
+		"port": 81,
+		"admin_login": "admin",
+		"admin_password": "test"
+	},
+	"$project2": {
+		"port": 80,
+		"admin_login": "admin",
+		"admin_password": "local"
+	},
+	"$WebKumirFiles": {
+		"port": 80,
+		"admin_login": "admin",
+		"admin_password": "local"
+	},
+	"$log_file": "logs.txt"
+}

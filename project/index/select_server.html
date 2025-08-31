@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>WebKumir</title>
+	<!-- IE -->
+	<link rel="shortcut icon" type="image/x-icon" href="tileset/favicon.ico" />
+	<!-- other browsers -->
+	<link rel="icon" type="image/x-icon" href="tileset/favicon.ico" />
+	<script type="text/javascript">
+		var d=!0;
+		var list_file=['js/select_server_css.css','js/select_server_js.js'];
+		var list_file_after=[];
+		
+		var frontend_demo=(location.href.includes(':8081')||location.href.includes('.github.io'));
+		
+		if (frontend_demo) {
+			list_file.unshift('public_server/api.js');
+			list_file.unshift('public_server/frontend_demo.js');
+			list_file.unshift('js/kumir.js');
+		}
+		
+		function onLoadScripts()
+		{
+			myf();
+			document.getElementById('date_he').innerHTML+=Math.floor(((new Date()).getMonth()+1)/10)+''+(((new Date()).getMonth()+1)%10)+'.'+((new Date()).getFullYear());
+		}
+	</script>
+	<script type="text/javascript" src="js/loader.js"></script>
+</head>
+
+<body style="width: 100%;height:100%;font-family: 'Open Sans', sans-serif;">
+    <div class="load_div" id="load_div_id" style="width: 100%;height: 100%;background:  #341a3a;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 400; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;position: absolute;top: 50%;left: 50%;margin: -20px 0 0 -150px;width:300px;height:40px;" id="loading_text">Загрузка... (DOM)</h1>
+	</div>
+	<canvas id="back_img" width="1920" height="1080" style="height:100%;width:100%;position: absolute;top: 0%;left: 0%;"></canvas>
+	<div class="login" onkeydown="return event.key != 'Enter';" onsubmit="return false;" action="">
+		  <table class="tab" border="1" width="100%">
+		   <!--<caption>Выберите сервер</caption>
+		   <tr class="mth">
+			<th>Название</th>
+			<th>Доступность</th>
+			<th>Начало</th>
+			<th>Продолжительность</th>
+		   </tr>
+		   <tr class="mtr"><td>7 класс экспериментальный тур</td><td>OK</td><td>Через 1 час</td><td>2 часа</td></tr>
+		   <tr class="mtr"><td>6 класс экспериментальный тур</td><td>OK</td><td>Идёт</td><td>2 часа</td></tr>
+		   <tr class="mtr"><td>6 класс городской тур</td><td>НЕДОСТУПНО</td><td>Не скоро</td><td>2 часа</td></tr>-->
+		  </table>
+	</div>
+	<div style="position: absolute;top: 10%;left: 10%;bottom: 10%;right: 10%;width: 80%;height: 80%;background: #454545;border: 4mm ridge rgb(24 24 24 / 41%);color: white;display:none;" id='learning'>
+		<button style="position: absolute;top: 0px;right: 0px;height: 45px;width: 45px;margin: 5px;" class="back" name="back2" onclick="document.getElementById('learning').style.display='none'">X</button>
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;width: 100%;height: 36px;margin: 10px 0 10px 0;">Обучение</h1>
+		<div class="cl_learning" style="position: absolute;top: 55px;left: 0px;bottom: 0px;width: 30%;background: #5c5c5c;border: 2px solid rgb(24 24 24 / 56%);overflow: auto;" id='learning'>
+			<ul style="width: 100%;min-width: 360px;" >
+				<li class="topmenu" style="margin-bottom: 28px;" onclick="if (d)window.location='#learning_1_1';d=!0;">Регистрация
+					<ul>
+						<li onclick="d=!1;window.location='#learning_1_2';">Ограничения</li>
+					</ul>
+				</li>
+				<li class="topmenu" onclick="window.location='#learning_2_1';">Вход</li>
+				<li class="topmenu" style="margin-bottom: 48px;" onclick="if (d)window.location='#learning_3_1';d=!0;">Выбор турнира 
+					<ul>
+						<li onclick="d=!1;window.location='#learning_3_2';">Доступные турниры</li>
+						<li onclick="d=!1;window.location='#learning_3_3';">Возможные причины отсутствия доступа</li>
+					</ul>
+				</li>
+				<li class="topmenu" style="margin-bottom: 144px;" onclick="if (d)window.location='#learning_4_1';d=!0;">Карта
+					<ul>
+						<li onclick="d=!1;window.location='#learning_4_2';">Перемещение</li>
+						<li onclick="d=!1;window.location='#learning_4_3';">Мини-карта</li>
+						<li onclick="d=!1;window.location='#learning_4_4';">Редактор персонажа</li>
+						<li onclick="d=!1;window.location='#learning_4_5';">Изменение проекции</li>
+						<li onclick="d=!1;window.location='#learning_4_6';">Кнопка выхода</li>
+						<li onclick="d=!1;window.location='#learning_4_7';">Суть</li>
+					</ul>
+				</li>
+				<li class="topmenu" style="margin-bottom: 140px;" onclick="if (d)window.location='#learning_5_1';d=!0;">Редактор
+					<ul>
+						<li onclick="d=!1;window.location='#learning_5_2';">Что?Где?</li>
+						<li onclick="d=!1;window.location='#learning_5_3';">Функциональные кнопки</li>
+						<li onclick="d=!1;window.location='#learning_5_4';">Программный код</li>
+						<li onclick="d=!1;window.location='#learning_5_5';">Вывод</li>
+						<li onclick="d=!1;window.location='#learning_5_6';">Вкладки</li>
+						<li onclick="d=!1;window.location='#learning_5_7';">Основная задача</li>
+					</ul>
+				</li>
+				<li class="topmenu" style="margin-bottom: 120px;" onclick="if (d)window.location='#learning_6_1';d=!0;">Самое интересное
+					<ul>
+						<li onclick="d=!1;window.location='#learning_6_2';">Быстрое написание программы</li>
+						<li onclick="d=!1;window.location='#learning_6_3';">Быстрое отображение</li>
+						<li onclick="d=!1;window.location='#learning_6_4';">Тёмная тема</li>
+						<li onclick="d=!1;window.location='#learning_6_5';">Форматирование кода</li>
+						<li onclick="d=!1;window.location='#learning_6_6';">Cоветчик</li>
+						<li onclick="d=!1;window.location='#learning_6_7';">Информация</li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+		<div style="position: absolute;top: 55px;right: 0px;bottom: 0px;width: 70%;background: #5c5c5c;border: 2px solid rgb(24 24 24 / 56%);overflow: auto;padding-right: 30px;" id='learning'>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Если вам не интересно читать всё, что я написал, то рекомендую хотя бы глянуть <a href="#learning_6_1">"Самое интересное"</a>.</h4>
+			
+			
+			<h2 id="learning_1_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Регистрация</h2>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Работает только если администратор разрешил.</h4>
+			<img src="images/reg_jpg.jpg" style="margin: 0px 28px 0px 28px;" width="197" height="264" alt="lorem">
+			<img src="images/reg.gif" style="margin: 0px 28px 0px 28px;" width="197" height="264" alt="lorem">
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 20px 0px;width: 100%;padding-left: 50px;">Перемещаться между полями можно используя Tab. Для отправки формы можно нажать Enter.</h4>
+			
+			<h3 id="learning_1_2" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Ограничения:</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ul style="margin: 0px;">
+					<li>Логин: количество символов от 3х до 31х. Может состоять только из букв латинского языка, цифр, "@№?*(){}[]:+-="</li>
+					<li>Пароль: аналогично логину</li>
+					<li>Имя: количество символов от 3х до 43х. Может состоять только из букв латинского и русского языка, цифр, ". "</li>
+				</ul>
+			</h4>
+			
+			
+			<h2 id="learning_2_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Вход</h2>
+			<img src="images/inp_jpg.jpg" style="margin: 0px 28px 0px 28px;" width="264" height="163" alt="lorem">
+			<img src="images/inp.gif" style="margin: 0px 28px 0px 28px;" width="264" height="163" alt="lorem">
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Как и в регистрации, можно использовать Tab и Enter.</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 20px 0px;width: 100%;padding-left: 50px;">Есть тут те, кто нажимал на "?"?</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Думаю, комментарии тут излишни.</h4>
+			
+			
+			<h2 id="learning_3_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Выбор турнира</h2>
+			<img src="images/select_serv.jpg" style="margin: 0px 28px 0px 28px;" width="854" height="386" alt="lorem">
+			
+			<h3 id="learning_3_2" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Доступные турниры</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Доступные турниры отображаются с пометкой "OK" в столбике "Доступность".</h4>
+			
+			<h3 id="learning_3_3" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Возможные причины отсутствия доступа</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ul style="margin: 0px;">
+					<li>Для доступа нужно быть администратором</li>
+					<li>Время для открытия не пришло</li>
+					<li>Вы не состоите в группе, для которой проходит турнир</li>
+				</ul>
+			</h4>
+			
+			
+			<h2 id="learning_4_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Карта</h2>
+			<img src="images/map.png" style="margin: 0px 28px 0px 28px;" width="854" height="387" alt="lorem">
+			<h5 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 350px;">Где-то на серверах разработчика</h5>
+			<h3 id="learning_4_2" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Перемещение</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Всего есть 3 варианта сдвинуться с места:</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ul style="margin: 0px;">
+					<li>Через стрелки на клавиатуре(← ↑ → ↓)</li>
+					<li>Через WASD</li>
+					<li>Через жесты(удобно для телефонов *закадровый смех*)</li>
+				</ul>
+			</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Для открытия редактора, нужно "зайти в дверь".</h4>
+			<h3 id="learning_4_3" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Мини-карта</h3>
+			<img src="images/map_minimap.png" style="margin: 0px 28px 0px 28px;" width="539" height="540" alt="lorem">
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">На одной из олимпиад мне предложили эту идей. Я её реализовал. Наслаждайтесь.</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Отображается в верхнем правом углу.</h4>
+			<h3 id="learning_4_4" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Редактор персонажа</h3>
+			<img src="images/map_pers_edit.png" style="margin: 0px 28px 0px 28px;" width="320" height="512" alt="lorem">
+			<h5 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 310px;padding-left: 50px;">Только после 1,5 года после создания проекта появился женский персонаж</h5>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;" id='date_he'>Ещё более бесполезная вещь, чем IE9 в </h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Открывается по кнопке в нижнем правом углу.</h4>
+			<h3 id="learning_4_5" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Изменение проекции</h3>
+			<img src="images/map_proection.png" style="margin: 0px 28px 0px 28px;" width="854" height="553" alt="lorem">
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Всего 3 варианта. Можно увидеть факелы на стенах.</h4>
+			<h3 id="learning_4_6" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Кнопка выхода</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Почему-то переносит на выбор сервера, а не на главную страницу.</h4>
+			<h3 id="learning_4_7" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Суть</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Создана карта была в первую очередь для последовательного прохождения(и усложнения) задач. Определённые задачи позволят пройти к монеткам, которые дадут приоритет в топе.</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Если проще, то для открытия двери нужно решить задачу. За верное решение вы получаете баллы.</h4>
+
+
+			<h2 id="learning_5_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Редактор</h2>
+			<img src="images/editor.png" style="margin: 0px 28px 0px 28px;" width="854" height="386" alt="lorem">
+			<h3 id="learning_5_2" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Что?Где?</h3>
+			<img src="images/editor_texts_2.png" style="margin: 0px 28px 0px 28px;" width="854" height="386" alt="lorem">
+			<h5 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Первое что было реализовано в WebKumir - это редактор</h5>
+			<h3 id="learning_5_3" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Функциональные кнопки</h3>
+			<img src="images/editor_func_buttons.png" style="margin: 0px 28px 0px 28px;" width="854" height="61" alt="lorem">
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ol style="margin: 0px;">
+					<li>Вырезать (CTRL+X) ..... вырезать выделенный текст в буфер обмена</li>
+					<li>Скопировать (CTRL+C) ..... копировать выделенный текст в буфер обмена</li>
+					<li>Вставить (CTRL+V) ..... вставить текст из буфер обмена на место курсора</li>
+					<li>Отменить последнее действие (CTRL+Z) ..... отменить последнее действие</li>
+					<li>Повторить отменённое действие (Ctrl+Y) ..... отменить отмену</li>
+					<li>Быстрое выполнение (Shift + F9) ..... быстрое выполнение (без анимации)</li>
+					<li>Обычное выполнение (F9) ..... обычное выполнение (с анимацией)</li>
+					<li>Остановить выполнение (Esc) ..... остановить выполнение</li>
+					<li>Шаг (F2) ..... шаг (выполнить одну команду)</li>
+					<li>Выполнить до курсора (F4) ..... выполнить до курсора</li>
+					<li>Форматировать код (F8) ..... форматировать код</li>
+					<li>Помощь ..... Открывает помощь. Там много полезной информации</li>
+					<li>Сменить тему ..... Переключает светлую и тёмную тему</li>
+					<li>Вернуться на карту ..... Закрывает редактор и возвращает на карту</li>
+				</ol>
+			</h4>
+			<h3 id="learning_5_4" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Программный код</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Очевидно, здесь пишется программный код. Документация доступна <a href="/manual.pdf" target="_blank" style="color: #cbcbff;">здесь</a>. Правда она давно не обновлялась...</h4>
+			<h3 id="learning_5_5" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Вывод</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Очевидно, здесь вывод программы. Для вывода используется команда "вывод"</h4>
+			<h3 id="learning_5_6" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Вкладки</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Здесь вы можете переключаться между вкладками. Всего их несколько видов:</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ul style="margin: 0px;">
+					<li>Текст: Чаще всего используют для условия задачи</li>
+					<li>Расстановка: Это один из тестов программы. Вместе с расстановкой поставляются необходимое конечное состояние</li>
+					<li>Сдать задачу: ...</li>
+					<li>Сайт: Чаще всего используют для отображения топа</li>
+					<li>Файл: Не используется. Предназначен для отображения файлов *.pdf и тд</li>
+				</ul>
+			</h4>
+			<h3 id="learning_5_7" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Основная задача</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Для решения задачи вам надо написать и отослать программу, которая бы проходила все доступные и секретные тесты. После решения будет открыта дверь на карте, а также начислены баллы.</h4>
+
+
+
+			<h2 id="learning_6_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Самое интересное</h2>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Причин создавать WebKumir было много, как минимум прийти к нормальному редактору. Здесь будет описано самое основное, что было изменено.</h4>
+			<h3 id="learning_6_2" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Быстрое написание программы</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Мы просто улучшили этот функционал. Поставьте курсор на нужную строчку и зажмите Esc. Теперь нажимая на клавиши со стрелками и пробел, вы можете писать программу с очень большой скоростью.</h4>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">
+				<ul style="margin: 0px;">
+					<li>Esc + стрелка вверх - вставляет команду "вверх"</li>
+					<li>Esc + стрелка вправо - вставляет команду "вправо"</li>
+					<li>Esc + стрелка вниз - вставляет команду "вниз"</li>
+					<li>Esc + стрелка влево - вставляет команду "влево"</li>
+					<li>Esc + пробел - вставляет команду "закрасить"</li>
+				</ul>
+			</h4>
+			<h3 id="learning_6_3" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Быстрое отображение</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Вам хочеться ещё быстрее писать программы? У нас есть решение: два раза кликаете по кнопке с быстрым запуском. Теперь вы сразу видете результат работы программы.</h4>
+
+			<h3 id="learning_6_4" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Тёмная тема</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Тут и так все понятно. У меня везде стоит тёмная тема, а в WebKumir нет. После долгих раздумий я наконец то добавил этот функционал.</h4>
+			<h3 id="learning_6_5" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Форматирование кода</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">В большинстве IDE это было реализовано, а чем мой редактор отличается от них?</h4>
+			<h3 id="learning_6_6" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Cоветчик</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Теперь когда вы пишете программу, вам будут предлагаться варианты. По клавише Tab, можно будет выбрать вариант.</h4>
+			<h3 id="learning_6_7" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Информация</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Ну помощь никогда не бывает лишней. По кнопке (i) теперь можно посмотреть всё что вам надо.</h4>
+			<h3 id="learning_6_8" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 25px;">Переключение</h3>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">В топе вы можете перемещаться между задачами (просто тыркнув на букву, обозначающюю определёную задачу)(вы ограничены только задачами, к которым вы имете доступ).</h4>
+
+
+			<h2 id="learning_7_1" style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 10px;width: 300px;height: 25px;">Есть идеи?</h2>
+			<h4 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 0px;width: 100%;padding-left: 50px;">Пишите на dmitriytsenekov@mail.ru (ну или хоть в предложку vk.com/webkumir). Буду ждать)</h4>
+		</div>
+	</div>
+	<div style="position: absolute;top: 50%;right: 30%;left: 30%;width: 40%;height: 200px;margin: -100px 0 0 0;background: #949494;border: 4px solid #1818188f;overflow: auto;display:none;" id='need_learning'>
+		<h2 style="color: #fff;letter-spacing:0px;text-align:center;width: 100%;height: 36px;margin: 10px 0 10px 0;">Не хотите ли вы пройти обучение?</h2>
+		<button style="position: absolute;bottom: 0px;left: 0%;height: 100px;width: 29%;margin: 2%;padding: 0px;" class="back" name="back4" onclick="document.getElementById('need_learning').style.display='none';localStorage.setItem('_lern','true');">Нет и больше не спрашивать</button>
+		<button style="position: absolute;bottom: 0px;left: 33%;height: 100px;width: 29%;margin: 2%;padding: 0px;" class="back" name="back5" onclick="document.getElementById('need_learning').style.display='none';">Потом</button>
+		<button style="position: absolute;bottom: 0px;left: 66%;height: 100px;width: 29%;margin: 2%;padding: 0px;" class="back" name="back6" onclick="document.getElementById('learning').style.display='';document.getElementById('need_learning').style.display='none';">ДА!</button>
+	
+	</div>
+	<script>
+		if (localStorage.getItem('_lern')!='true')
+			document.getElementById('need_learning').style.display='';
+	</script>
+	<button style="position: absolute;bottom: 0px; left: 0px;height: 75px;width: 75px;margin: 16px;padding: 0px;" class="back" name="back3" onclick="document.getElementById('learning').style.display=''">Обучение</button>
+	<button  style="position: absolute;bottom: 0px; right: 0px;height: 75px;width: 75px;margin: 16px;display:none;"  class="back" name="back" onclick="document.location.href = './admin.html';">Назад ←</button>
+</body>
+</html>

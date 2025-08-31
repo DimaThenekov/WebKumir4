@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>WebKumir</title>
+	<!-- IE -->
+	<link rel="shortcut icon" type="image/x-icon" href="tileset/favicon.ico" />
+	<!-- other browsers -->
+	<link rel="icon" type="image/x-icon" href="tileset/favicon.ico" />
+	<script type="text/javascript">
+		
+		
+		var list_file=['js/login_css.css'];
+		var also_list_file=['TrackBar/winclassic.css','lib/codemirror.css','lib/show-hint.css','lib/lint.css','js/index.css','trackbar/slider.js','split/line.js','lib/codemirror.js','lib/show-hint.js','lib/lint.js','lib/match-highlighter.js','js/kumir.js'];//'js/js.js','js/kumir.js','js/select_server_css.css','js/select_server_js.js','TrackBar/winclassic.css','lib/codemirror.css','lib/show-hint.css','lib/lint.css','js/index.css','trackbar/slider.js','split/line.js','lib/codemirror.js','lib/show-hint.js','lib/lint.js'];
+		var list_file_after=['js/login_js.js'];
+		
+		var frontend_demo=(location.href.includes(':8081')||location.href.includes('.github.io'));
+		
+		if (frontend_demo) {
+			list_file_after.unshift('public_server/api.js');
+			list_file_after.unshift('public_server/frontend_demo.js');
+			list_file_after.unshift('js/kumir.js');
+		}
+		
+		function onLoadScripts()
+		{
+			setTimeout(function f(){
+				document.getElementById('log_selected').selected=true;
+			},10);
+			document.getElementsByName('u')[0].value=(getQueryVariable('login')||0!=0)?getQueryVariable('login'):GetVal('login','');
+			document.getElementsByName('p')[0].value=getQueryVariable('password')||'';
+			if (getQueryVariable('auto')=='true')
+				setTimeout(function f(){
+					myf();
+				},100);
+			setTimeout(function(){if (document.getElementsByName('u')[0].value!='')document.getElementsByName('p')[0].focus();else document.getElementsByName('u')[0].focus();},50);
+		}
+	</script>
+	<script type="text/javascript" src="js/loader.js"></script>
+</head>
+
+<body onload="" style="width: 100%;height:100%;font-family: 'Open Sans', sans-serif;">
+    <div class="load_div" id="load_div_id" style="width: 100%;height: 100%;background:  #341a3a;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 400; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;position: absolute;top: 50%;left: 50%;margin: -20px 0 0 -150px;width:300px;height:40px;" id="loading_text">Загрузка... (DOM)</h1>
+	</div>
+	<canvas id="back_img" width="1920" height="1080" style="height:100%;width:100%;position: absolute;top: 0%;left: 0%;"></canvas>
+	<img src="tileset/webkum.png" style="position: absolute;top: 50%;left: 50%;margin: -400px 0px 0px -250px;" width="500" height="281" alt="lorem" id="cpl_scr">
+	<form class="login" onkeydown="return event.key != 'Enter';" onsubmit="return false;" action="">
+
+		<button type="submit" disabled style="display: none" onclick="return false;" aria-hidden="true" ></button>
+		<h1>Вход</h1>
+		<div style="text-align:center"><a id="can_reg" href="/register.html" style="display: none">Включен режим регистрации. Зарегистрируйтесь</a></div>
+		<div class="login2">
+			<input type="text" name="u" placeholder="Логин" required="required" autocomplete="on" onkeydown="setTimeout(function (){if (false)document.getElementsByName('u')[0].style.background='#740000';else document.getElementsByName('u')[0].style.background='';},10); if (event.keyCode==13) {document.getElementsByName('p')[0].focus();}" />
+			<input type="password" name="p" placeholder="Пароль" required="required" autocomplete="on" onkeydown="setTimeout(function (){if (false)document.getElementsByName('p')[0].style.background='#740000';else document.getElementsByName('p')[0].style.background='';},10); if (event.keyCode==13) {myf();}" />
+			<button class="btn btn-primary btn-block btn-large" onclick="myf();" style="display: inline-block; width: 74%;">Войти</button>
+			<select class="sel" onchange="setTimeout(function f(){document.getElementById('log_selected').selected=true;},10);if (this.value!='')if (this.value.split('http')[0]!='') top.location=this.value; else window.open(this.value);" style="display: inline-block; width: 24%;" size="1">
+				<option value="" selected id="log_selected">?</option>
+				<option value="/tileset/2Mbyte.mp4">Туториал (встроенный)</option>
+				<option value="/manual.pdf">Мануал по языку (pdf)</option>
+				<option value="/manual.docx">Мануал по языку (docx)</option>
+				<option value="http://youtu.be/n8-oeqE-KWM">Туториал (YouTube)</option>
+				<option value="http://www.youtube.com/channel/UCIkzwI-P17gdQf7qIlq3mHg">YouTube канал</option>
+				<option value="mailto:dmitriytsenekov@mail.ru">почта создателя</option>
+			</select>
+			
+		</div>
+	</form>
+	<h4 style="color: rgb(0,0,0);letter-spacing: 1px;text-align: center;transform: rotate(336deg);height: 32px;width:320px;position: absolute;top: 50%;margin: -190px 0px 0px 0px;left: 50%;" id="black_spl">Какой-то текст</h4>
+	<h4 style="color: rgb(255,255,0);letter-spacing: 0px;text-align: center;transform: rotate(336deg);height: 32px;width:320px;position: absolute;top: 50%;margin: -190px 0px 0px 0px;left: 50%;" id="white_spl">Какой-то текст</h4>
+	<script type="text/javascript">
+		var a=["август, апрель, декабрь<br>июль, июнь, май<br>март, ноябрь, октябрь<br>сентябрь, февраль, январь","Как выйти из vim?","Как пропатчить kde2 под freebsd?","Спасибо всем, кто верил в меня. Жалко что не смог","Теперь 4.0!","Работает в IE9","Интерпретатор","Работает на node.js","не сеньор, а милорд","Сны - это виртуальные машины в мозгах","Что я тут делаю?","Я ради тебя готов ВебКумир свернуть","Дима, что ты сделал?","dmitriytsenekov@mail.ru"];
+		a.push('Уже как '+Math.floor(((new Date())-1584608400000)/31556926000*1000000)/1000000+' лет');
+		a.push('В целом не очень стабильно,<br>но работает как надо.<br>думаю сойдёт');
+		
+		document.getElementById('white_spl').innerHTML=a[Math.floor(Math.random()*a.length)];
+		console.log(a.length);
+		a=[];
+		document.getElementById('black_spl').innerHTML=document.getElementById('white_spl').innerHTML;
+		document.getElementById('black_spl').innerHTML=document.getElementById('white_spl').innerHTML;
+
+		document.getElementById('black_spl').style.fontSize=Math.max(Math.min(Math.round(400/document.getElementById('white_spl').innerHTML.length),22),7)+'px';
+		document.getElementById('white_spl').style.fontSize=Math.max(Math.min(Math.round(400/document.getElementById('white_spl').innerHTML.length),22),7)+'px';
+		function f()
+		{
+			function fl(x)
+			{
+				return Math.round(10*x)/10;
+			}
+			if (document.getElementById('white_spl').style.letterSpacing!=fl(Math.sin(((new Date())%1000)/500*Math.PI)*Math.sin(((new Date())%1000)/500*Math.PI)+1)+'px')
+			{
+				document.getElementById('white_spl').style.letterSpacing=fl(Math.sin(((new Date())%1000)/500*Math.PI)*Math.sin(((new Date())%1000)/500*Math.PI)+1)+'px';
+				document.getElementById('black_spl').style.letterSpacing=fl(Math.sin(((new Date())%1000)/500*Math.PI)*Math.sin(((new Date())%1000)/500*Math.PI)+2)+'px';
+			}
+			setTimeout(f,50);
+		}
+		f();
+		if (Math.floor(Math.random()*10000)==2)
+		{
+			document.getElementById('cpl_scr').src="tileset/webcumir.png"
+		}
+	</script>
+</body>
+</html>

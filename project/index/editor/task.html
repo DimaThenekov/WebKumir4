@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Редактор задач</title>
+	<link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	body {
+		background: #ffffff;
+		color: #333333;
+		min-height: 100vh;
+		padding: 20px;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		max-width: 1200px;
+		margin: 0 auto;
+		gap: 15px;
+	}
+
+	header {
+		text-align: center;
+		padding: 15px;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	h1 {
+		font-size: 1.8rem;
+		margin-bottom: 8px;
+		color: #1976d2;
+	}
+
+	.tabs-container {
+		display: flex;
+		flex-direction: column;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+		overflow: hidden;
+	}
+
+	.tabs-header {
+		display: flex;
+		background: #f0f0f0;
+		border-bottom: 1px solid #ddd;
+		flex-wrap: wrap;
+	}
+
+	.tab-btn {
+		padding: 12px 20px;
+		background: none;
+		border: none;
+		cursor: pointer;
+		font-weight: 600;
+		color: #555;
+		transition: all 0.2s;
+		position: relative;
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.tab-btn:hover {
+		background: #e5e5e5;
+	}
+
+	.tab-btn.active {
+		background: #fff;
+		color: #1976d2;
+	}
+
+	.tab-btn.active::after {
+		content: '';
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		width: 100%;
+		height: 3px;
+		background: #1976d2;
+	}
+
+	.tab-btn.secret {
+		color: #888;
+	}
+
+	.tab-content {
+		padding: 20px;
+		display: none;
+	}
+
+	.tab-content.active {
+		display: block;
+	}
+
+	.section {
+		margin-bottom: 25px;
+	}
+
+	.section-header {
+		display: flex;
+		align-items: baseline;
+		gap: 10px;
+	}
+
+	i.iblue {
+		color: #1976d2;
+	}
+
+	.section-header h2, .section-header h3 {
+		font-size: 1.4rem;
+		color: #1976d2;
+	}
+
+	.task-name-editor input {
+		width: 100%;
+		padding: 12px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		font-size: 1.1rem;
+	}
+
+	.editor-toolbar {
+		display: flex;
+		justify-content: space-between;
+		margin-bottom: 15px;
+		align-items: center;
+	}
+
+	.editor-tabs {
+		display: flex;
+		gap: 5px;
+	}
+
+	.editor-tabs .tab-btn {
+		padding: 8px 15px;
+		font-size: 0.9rem;
+	}
+
+	.condition-editor-container {
+		display: flex;
+		gap: 20px;
+	}
+
+	.editor-column {
+		flex: 1;
+		display: flex;
+		flex-direction: column;
+	}
+
+	textarea {
+		width: 100%;
+		height: 300px;
+		padding: 15px;
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		resize: none;
+		font-family: monospace;
+		font-size: 14px;
+	}
+
+	.preview {
+		border: 1px solid #ddd;
+		border-radius: 8px;
+		padding: 15px;
+		min-height: 300px;
+		background: #fff;
+		overflow: auto;
+	}
+
+	.hidden {
+		display: none;
+	}
+
+	.code-editor {
+		position: relative;
+	}
+
+	.tests-header {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 15px;
+	}
+
+	.add-test-btn {
+		padding: 8px 15px;
+		background: #1976d2;
+		color: white;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		gap: 5px;
+	}
+
+	.add-test-btn:hover {
+		background: #1565c0;
+	}
+
+
+	.form-group {
+		margin-bottom: 20px;
+	}
+
+	label {
+		display: block;
+		margin-bottom: 8px;
+		font-weight: 600;
+		color: #0d47a1;
+		font-size: 0.95rem;
+	}
+
+	.form-actions {
+		display: flex;
+		gap: 10px;
+		margin-top: 20px;
+	}
+
+	.btn {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 6px;
+		cursor: pointer;
+		font-weight: 600;
+	}
+
+	.btn-primary {
+		background: #1976d2;
+		color: white;
+	}
+
+	.btn-primary:hover {
+		background: #1565c0;
+	}
+
+	.btn-secondary {
+		background: #f0f0f0;
+		color: #333;
+	}
+
+	.btn-secondary:hover {
+		background: #e0e0e0;
+	}
+
+	.action-btn {
+		background: none;
+		border: none;
+		cursor: pointer;
+		color: #666;
+		padding: 5px;
+	}
+
+	.action-btn:hover {
+		color: #1976d2;
+	}
+
+	.test-checkbox {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+
+	.test-checkbox input {
+		width: auto;
+	}
+
+	.test-tab-actions {
+		display: flex;
+		gap: 5px;
+		margin-left: 10px;
+	}
+
+	.delete-tab-btn {
+		color: #f44336;
+		opacity: 0.7;
+	}
+
+	.delete-tab-btn:hover {
+		opacity: 1;
+	}
+	
+	.image-btn {
+		background: linear-gradient(135deg, #ff8c00, #ff6b00);
+		color: white;
+		border: none;
+		border-radius: 8px;
+		padding: 8px 16px;
+		font-size: 14px;
+		font-weight: 500;
+		cursor: pointer;
+		transition: all 0.3s ease;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		display: inline-flex;
+		align-items: center;
+		gap: 8px;
+		min-width: 120px;
+		justify-content: center;
+	}
+
+	.image-btn:hover {
+		background: linear-gradient(135deg, #ff6b00, #ff5500);
+		transform: translateY(-2px);
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+	}
+
+	.image-btn:active {
+		transform: translateY(0);
+		box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+	}
+
+	.image-btn:focus {
+		outline: none;
+		box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.3);
+	}
+
+	.image-btn i {
+		font-size: 16px;
+	}
+	
+	.tool-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    background: rgba(224, 224, 224, 0.6);
+    border: none;
+    border-radius: 8px;
+    color: #333333;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+.tool-btn:hover {
+    background: rgba(200, 200, 200, 0.7);
+    transform: translateY(-2px);
+}
+
+.tool-btn.active {
+    background: rgba(25, 118, 210, 0.2);
+    box-shadow: 0 0 10px rgba(25, 118, 210, 0.2);
+}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<div class="tabs-container">
+			<div class="tabs-header" id="tabs-header">
+				<!-- Вкладки будут добавляться динамически -->
+			</div>
+			
+			<div class="tab-content active" id="settings-tab">
+				<div class="section">
+					<div class="section-header">
+						<i class="iblue fas fa-info-circle"></i>
+						<label for="task-name">Название задачи</label>
+					</div>
+					<div class="task-name-editor">
+						<input type="text" id="task-name" value="Фантастическая дорога" placeholder="Название задачи">
+					</div>
+				</div>
+				
+				<div class="section">
+					<div class="section-header">
+						<i class="iblue fas fa-laptop-code"></i>
+						<label>Код по умолчанию</label>
+					</div>
+					<div class="code-editor">
+						<textarea id="default-program" placeholder="Введите код по умолчанию...">{ }</textarea>
+					</div>
+				</div>
+				
+				<div class="section">
+					<div class="section-header">
+						<i class="iblue fas fa-check-circle"></i>
+						<label>Решение</label>
+					</div>
+					<div class="code-editor">
+						<textarea id="solution" placeholder="Введите решение задачи...">{print('hello')}</textarea>
+					</div>
+					<div class="test-checkbox">
+						
+						<label><input type="checkbox" id="length-check"> Контроль длины решения</label>
+					</div>
+				</div>
+				<div class="section">
+					<div class="section-header">
+						<i class="iblue fas fa-save"></i>
+						<label>Управление</label>
+					</div>
+					<button class="tool-btn" id="retest-btn">
+						<i class="fas fa-arrows-rotate"></i> Перепроверить решения связанные с этой задачей
+					</button>
+					<button class="tool-btn" id="export-btn">
+						<i class="fas fa-file-export"></i> Экспорт задачи
+					</button>
+					<button class="tool-btn" id="import-btn">
+						<i class="fas fa-file-import"></i> Импорт задачи
+					</button>
+				</div>
+			</div>
+			
+			<div class="tab-content" id="condition-tab">
+				<div class="section">
+					<div class="condition-editor-container">
+						<div class="editor-column">
+							<div class="editor-toolbar">
+								<div class="editor-tabs">
+									Редактор
+								</div>
+								<div class="toolbar-buttons">
+									<button class="image-btn" id="insert-image">
+										<i class="fas fa-image"></i> Вставить изображение
+									</button>
+								</div>
+							</div>
+							<textarea id="condition-editor" placeholder="Введите условие задачи..."></textarea>
+						</div>
+						<div class="editor-column">
+							<div class="editor-toolbar" style="margin-bottom: 29px;">
+								<div class="editor-tabs">
+									Предпросмотр
+								</div>
+							</div>
+							<div id="condition-preview" class="preview"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+			<!-- Вкладки для тестов будут добавляться динамически -->
+		</div>
+	</div>
+	
+	<input type="file" id="image-upload" accept="image/*" style="display: none;">
+
+	<script>
+		var MD5 = function(d){var r = M(V(Y(X(d),8*d.length)));return r.toLowerCase()};function M(d){for(var _,m="0123456789ABCDEF",f="",r=0;r<d.length;r++)_=d.charCodeAt(r),f+=m.charAt(_>>>4&15)+m.charAt(15&_);return f}function X(d){for(var _=Array(d.length>>2),m=0;m<_.length;m++)_[m]=0;for(m=0;m<8*d.length;m+=8)_[m>>5]|=(255&d.charCodeAt(m/8))<<m%32;return _}function V(d){for(var _="",m=0;m<32*d.length;m+=8)_+=String.fromCharCode(d[m>>5]>>>m%32&255);return _}function Y(d,_){d[_>>5]|=128<<_%32,d[14+(_+64>>>9<<4)]=_;for(var m=1732584193,f=-271733879,r=-1732584194,i=271733878,n=0;n<d.length;n+=16){var h=m,t=f,g=r,e=i;f=md5_ii(f=md5_ii(f=md5_ii(f=md5_ii(f=md5_hh(f=md5_hh(f=md5_hh(f=md5_hh(f=md5_gg(f=md5_gg(f=md5_gg(f=md5_gg(f=md5_ff(f=md5_ff(f=md5_ff(f=md5_ff(f,r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+0],7,-680876936),f,r,d[n+1],12,-389564586),m,f,d[n+2],17,606105819),i,m,d[n+3],22,-1044525330),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+4],7,-176418897),f,r,d[n+5],12,1200080426),m,f,d[n+6],17,-1473231341),i,m,d[n+7],22,-45705983),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+8],7,1770035416),f,r,d[n+9],12,-1958414417),m,f,d[n+10],17,-42063),i,m,d[n+11],22,-1990404162),r=md5_ff(r,i=md5_ff(i,m=md5_ff(m,f,r,i,d[n+12],7,1804603682),f,r,d[n+13],12,-40341101),m,f,d[n+14],17,-1502002290),i,m,d[n+15],22,1236535329),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+1],5,-165796510),f,r,d[n+6],9,-1069501632),m,f,d[n+11],14,643717713),i,m,d[n+0],20,-373897302),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+5],5,-701558691),f,r,d[n+10],9,38016083),m,f,d[n+15],14,-660478335),i,m,d[n+4],20,-405537848),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+9],5,568446438),f,r,d[n+14],9,-1019803690),m,f,d[n+3],14,-187363961),i,m,d[n+8],20,1163531501),r=md5_gg(r,i=md5_gg(i,m=md5_gg(m,f,r,i,d[n+13],5,-1444681467),f,r,d[n+2],9,-51403784),m,f,d[n+7],14,1735328473),i,m,d[n+12],20,-1926607734),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+5],4,-378558),f,r,d[n+8],11,-2022574463),m,f,d[n+11],16,1839030562),i,m,d[n+14],23,-35309556),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+1],4,-1530992060),f,r,d[n+4],11,1272893353),m,f,d[n+7],16,-155497632),i,m,d[n+10],23,-1094730640),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+13],4,681279174),f,r,d[n+0],11,-358537222),m,f,d[n+3],16,-722521979),i,m,d[n+6],23,76029189),r=md5_hh(r,i=md5_hh(i,m=md5_hh(m,f,r,i,d[n+9],4,-640364487),f,r,d[n+12],11,-421815835),m,f,d[n+15],16,530742520),i,m,d[n+2],23,-995338651),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+0],6,-198630844),f,r,d[n+7],10,1126891415),m,f,d[n+14],15,-1416354905),i,m,d[n+5],21,-57434055),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+12],6,1700485571),f,r,d[n+3],10,-1894986606),m,f,d[n+10],15,-1051523),i,m,d[n+1],21,-2054922799),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+8],6,1873313359),f,r,d[n+15],10,-30611744),m,f,d[n+6],15,-1560198380),i,m,d[n+13],21,1309151649),r=md5_ii(r,i=md5_ii(i,m=md5_ii(m,f,r,i,d[n+4],6,-145523070),f,r,d[n+11],10,-1120210379),m,f,d[n+2],15,718787259),i,m,d[n+9],21,-343485551),m=safe_add(m,h),f=safe_add(f,t),r=safe_add(r,g),i=safe_add(i,e)}return Array(m,f,r,i)}function md5_cmn(d,_,m,f,r,i){return safe_add(bit_rol(safe_add(safe_add(_,d),safe_add(f,i)),r),m)}function md5_ff(d,_,m,f,r,i,n){return md5_cmn(_&m|~_&f,d,_,r,i,n)}function md5_gg(d,_,m,f,r,i,n){return md5_cmn(_&f|m&~f,d,_,r,i,n)}function md5_hh(d,_,m,f,r,i,n){return md5_cmn(_^m^f,d,_,r,i,n)}function md5_ii(d,_,m,f,r,i,n){return md5_cmn(m^(_|~f),d,_,r,i,n)}function safe_add(d,_){var m=(65535&d)+(65535&_);return(d>>16)+(_>>16)+(m>>16)<<16|65535&m}function bit_rol(d,_){return d<<_|d>>>32-_}
+		
+		
+			// Глобальный объект для хранения соответствий
+		const base64Mapping = {};
+
+		function shortenText(text) {
+			const pattern = /"(data:image\/[^;]+;base64,)([^"]+)"/g;
+			
+			return text.replace(pattern, (match, prefix, base64Data) => {
+				// Создаем уникальный хеш для данных
+				const dataHash = MD5(base64Data);
+				// Сохраняем в словаре
+				base64Mapping[dataHash] = { prefix, base64Data };
+				return `"____base64__data_${dataHash}____"`;
+			});
+		}
+
+		function expandText(text) {
+			const pattern = /"____base64__data_([a-fA-F0-9]{32})____"/g;
+			
+			return text.replace(pattern, (match, dataHash) => {
+				const data = base64Mapping[dataHash];
+				if (data) {
+					return `"${data.prefix}${data.base64Data}"`;
+				}
+				// Если данные не найдены, возвращаем оригинальный плейсхолдер
+				return match;
+			});
+		}
+	
+	
+	
+		const editorPrefix = 'task';
+		
+		let last_editorUpdateValue = '';
+		let timer_editorUpdateValue = 0;
+		let currentFilIframe = null; // Текущий активный iframe
+		let currentTestIndex = null; // Индекс текущего активного теста
+		
+		document.addEventListener('DOMContentLoaded', function() {
+			// Инициализация структуры задачи
+			let task = {
+				name: "",
+				condition: "",
+				default_program: "",
+				solution: "",
+				tests: [],
+				length_check: false
+			};
+			
+			// Элементы DOM
+			const tabsHeader = document.getElementById('tabs-header');
+			const settingsTab = document.getElementById('settings-tab');
+			const conditionTab = document.getElementById('condition-tab');
+			
+			// Создаем вкладки
+			createTabs();
+			
+			// Инициализация данных
+			init();
+			
+			function exportTask() {
+				const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(task, null, 2));
+				const downloadAnchorNode = document.createElement('a');
+				downloadAnchorNode.setAttribute("href", dataStr);
+				downloadAnchorNode.setAttribute("download", "task_"+task.name.replace(/\s/g,"_")+".json");
+				document.body.appendChild(downloadAnchorNode);
+				downloadAnchorNode.click();
+				downloadAnchorNode.remove();
+			}
+			
+			function importTask() {
+				if (task.tests.length) return alert('Для импорта удалите все тесты');
+				const input = document.createElement('input');
+				input.type = 'file';
+				input.accept = '.json';
+				
+				
+				input.onchange = e => {
+					const file = e.target.files[0];
+					const reader = new FileReader();
+					
+					reader.onload = event => {
+						try {
+							const data = JSON.parse(event.target.result);
+							Object.assign(task, data);
+							editorPostMessage('SetValue', task);
+							setTimeout(()=>{location.reload();},100);
+						} catch (error) {
+							alert('Ошибка при загрузке файла: неверный формат');
+						}
+					};
+					
+					reader.readAsText(file);
+				};
+				
+				input.click();
+			}
+			
+			
+			document.getElementById('retest-btn').addEventListener('click', (e)=>{
+				e.target.disabled = true;
+				const t = new Date();
+				top.server_request('retest', task.name, (cnt)=>{
+					alert('Готово! Проверено '+cnt+' решений за '+(new Date() - t)+'мс');
+					e.target.disabled = false;
+				});
+			});
+			document.getElementById('export-btn').addEventListener('click', exportTask);
+			document.getElementById('import-btn').addEventListener('click', importTask);
+			// Обновление данных задачи из формы
+			function updateTaskFromForm() {
+				task.name = document.getElementById('task-name').value;
+				task.condition = expandText(document.getElementById('condition-editor').value);
+				task.default_program = document.getElementById('default-program').value;
+				task.solution = document.getElementById('solution').value;
+				task.length_check = document.getElementById('length-check').checked;
+				editorUpdateValue();
+			}
+			
+			
+			// Создание вкладок
+			function createTabs() {
+				// Очищаем заголовок вкладок
+				tabsHeader.innerHTML = '';
+				
+				// Вкладка "Настройки"
+				const settingsTabBtn = document.createElement('button');
+				settingsTabBtn.className = 'tab-btn active';
+				settingsTabBtn.innerHTML = '<i class="fas fa-cog"></i> Настройки';
+				settingsTabBtn.addEventListener('click', () => switchTab(settingsTabBtn, settingsTab));
+				tabsHeader.appendChild(settingsTabBtn);
+				
+				// Вкладка "Условие задачи"
+				const conditionTabBtn = document.createElement('button');
+				conditionTabBtn.className = 'tab-btn';
+				conditionTabBtn.innerHTML = '<i class="fas fa-file-alt"></i> Условие задачи';
+				conditionTabBtn.addEventListener('click', () => switchTab(conditionTabBtn, conditionTab));
+				tabsHeader.appendChild(conditionTabBtn);
+				
+				// Кнопка добавления теста
+				const addTestTabBtn = document.createElement('button');
+				addTestTabBtn.className = 'tab-btn';
+				addTestTabBtn.id = 'tab-btn-plus';
+				addTestTabBtn.innerHTML = '<i class="fas fa-plus"></i>';
+				addTestTabBtn.addEventListener('click', addNewTest);
+				tabsHeader.appendChild(addTestTabBtn);
+				
+				// Вкладки для тестов
+				task.tests.forEach((test, index) => {
+					createTestTab(test, index);
+				});
+			}
+			
+			// Переключение вкладок
+			function switchTab(button, tabContent) {
+				// Деактивируем все вкладки
+				document.querySelectorAll('.tab-btn').forEach(btn => {
+					btn.classList.remove('active');
+				});
+				document.querySelectorAll('.tab-content').forEach(tab => {
+					tab.classList.remove('active');
+				});
+				
+				// Активируем выбранную вкладку
+				button.classList.add('active');
+				tabContent.classList.add('active');
+				updateIframeHeight();
+			}
+			
+			
+			function removeFilIframe() {
+				if (currentFilIframe) {
+					currentFilIframe.remove();
+					currentFilIframe = null;
+				}
+			}
+			
+			// Создание вкладки для теста
+			function createTestTab(test, index) {
+				// Создаем кнопку вкладки
+				const testTabBtn = document.createElement('button');
+				testTabBtn.className = `tab-btn ${test.is_secret ? 'secret' : ''}`;
+				testTabBtn.innerHTML = `<i class="fas fa-tasks"></i> Тест ${index + 1}`;
+				
+				// Добавляем кнопку удаления
+				const deleteBtn = document.createElement('button');
+				deleteBtn.className = 'action-btn delete-tab-btn';
+				deleteBtn.innerHTML = '<i class="fas fa-times"></i>';
+				deleteBtn.addEventListener('click', (e) => {
+					e.stopPropagation();
+					deleteTest(index);
+				});
+				
+				const actionsContainer = document.createElement('div');
+				actionsContainer.className = 'test-tab-actions';
+				actionsContainer.appendChild(deleteBtn);
+				
+				testTabBtn.appendChild(actionsContainer);
+				
+				// Создаем контент вкладки
+				const testTabContent = document.createElement('div');
+				testTabContent.className = 'tab-content';
+				testTabContent.id = `test-tab-${index}`;
+				testTabContent.innerHTML = `
+					<div class="test-form">
+						<div class="form-group">
+							<div class="section-header">
+								<i class="iblue fas fa-file"></i> <label for="fil-editor-placeholder-${index}">Файл (fil)</label>
+							</div>
+							<div id="fil-editor-placeholder-${index}" class="fil-editor-placeholder">
+								Редактор fil будет загружен при активации вкладки...
+							</div>
+						</div>
+						
+						<div class="form-group">
+							<label class="test-checkbox">
+								<input type="checkbox" id="test-secret-${index}" ${test.is_secret ? 'checked' : ''}>
+								Секретный тест
+							</label>
+						</div>
+						
+						<div class="form-group">
+							<div class="section-header">
+								<i class="iblue fas file-code"></i> <label for="test-input-${index}">Входные данные</label>
+							</div>
+							<textarea id="test-input-${index}" rows="2" placeholder="Входные данные...">${test.input || ''}</textarea>
+						</div>
+						
+						<div class="form-group">
+							<div class="section-header">
+								<i class="iblue fas file-code"></i> <label for="test-output-${index}" >Ожидаемый вывод</label>
+							</div>
+							<textarea id="test-output-${index}" rows="2" placeholder="Ожидаемый вывод...">${test.expected_output || ''}</textarea>
+						</div>
+					</div>
+				`;
+				
+				// Добавляем обработчики событий
+				testTabBtn.addEventListener('click', () => {
+					switchTab(testTabBtn, testTabContent);
+					initFilEditor(index, test.fil || '');
+				});
+				
+				// Добавляем элементы в DOM
+				tabsHeader.insertBefore(testTabBtn, document.getElementById('tab-btn-plus'));
+				document.querySelector('.tabs-container').appendChild(testTabContent);
+				
+				// Назначаем обработчики для полей ввода
+				const secretCheckbox = document.getElementById(`test-secret-${index}`);
+				const inputField = document.getElementById(`test-input-${index}`);
+				const outputField = document.getElementById(`test-output-${index}`);
+				
+				// Обработчики изменений
+				const updateHandler = () => {
+					test.is_secret = secretCheckbox.checked;
+					test.input = inputField.value;
+					test.expected_output = outputField.value;
+					
+					// Обновляем стиль вкладки для секретных тестов
+					testTabBtn.classList.toggle('secret', test.is_secret);
+					
+					editorUpdateValue();
+				};
+				
+				secretCheckbox.addEventListener('change', updateHandler);
+				inputField.addEventListener('input', updateHandler);
+				outputField.addEventListener('input', updateHandler);
+			}
+			
+			// Добавление нового теста
+			function addNewTest() {
+				const newTest = {
+					input: "",
+					expected_output: "",
+					fil: "",
+					is_secret: false
+				};
+				
+				task.tests.push(newTest);
+				const index = task.tests.length - 1;
+				createTestTab(newTest, index);
+				editorUpdateValue();
+				
+				// Переключаемся на новую вкладку
+				const testTabBtn = tabsHeader.children[tabsHeader.children.length - 2];
+				const testTabContent = document.getElementById(`test-tab-${index}`);
+				switchTab(testTabBtn, testTabContent);
+				initFilEditor(index, newTest.fil || '');
+			}
+			
+			// Удаление теста
+			function deleteTest(index) {
+				if (confirm('Вы уверены, что хотите удалить этот тест?')) {
+					// Удаляем из массива
+					task.tests.splice(index, 1);
+					
+					// Удаляем элементы DOM
+					const testTabBtn = tabsHeader.children[index + 2]; // +2 из-за вкладок настроек и условия
+					const testTabContent = document.getElementById(`test-tab-${index}`);
+					
+					testTabBtn.remove();
+					testTabContent.remove();
+					
+					// Пересоздаем оставшиеся вкладки тестов
+					recreateTestTabs();
+					
+					const tabBtn = tabsHeader.children[0];
+					const tabContent = document.getElementById('settings-tab');
+					switchTab(tabBtn, tabContent);
+					
+					editorUpdateValue();
+				}
+			}
+			
+			// Пересоздание вкладок тестов после удаления
+			function recreateTestTabs() {
+				// Удаляем все вкладки тестов
+				for (let i = tabsHeader.children.length - 2; i >= 2; i--) {
+					tabsHeader.children[i].remove();
+				}
+				
+				document.querySelectorAll('[id^="test-tab-"]').forEach(el => el.remove());
+				
+				// Создаем заново
+				task.tests.forEach((test, index) => {
+					createTestTab(test, index);
+				});
+			}
+			
+			window.addEventListener('message', function filMessageHandler(event) {
+				if (currentTestIndex==null) return;
+				if (currentFilIframe==null) return;
+				if (event.data.type && event.data.type === 'setIframeFilHeight') {
+					currentFilIframe.style.height = (event.data.height || 400) + 'px';
+				} else if (event.data.type && event.data.type === 'setFilValue') {
+					task.tests[currentTestIndex].fil = event.data.value;
+					editorUpdateValue();
+				}
+			});
+			
+			// Инициализация редактора fil
+			function initFilEditor(index, initialValue) {
+				// Удаляем предыдущий iframe, если он есть
+				removeFilIframe();
+				
+				currentTestIndex = index;
+				
+				const placeholder = document.getElementById(`fil-editor-placeholder-${index}`);
+				placeholder.innerHTML = '';
+				
+				currentFilIframe = document.createElement('iframe');
+				currentFilIframe.src = '/editor/fil.html';
+				currentFilIframe.style.height = '500px';
+				currentFilIframe.style.width = '100%';
+				currentFilIframe.style.border = 'none';
+				currentFilIframe.title = `fil-editor-${index}`;
+				
+				placeholder.appendChild(currentFilIframe);
+				
+				const iframeLoadHandler = () => {
+					currentFilIframe.contentWindow.postMessage({
+						type: 'fil',
+						data: initialValue
+					}, '*');
+					
+					currentFilIframe.removeEventListener('load', iframeLoadHandler);
+				};
+				
+				currentFilIframe.addEventListener('load', iframeLoadHandler);
+			}
+			
+			// Функция для вставки изображения в формате base64
+			function insertImageToEditor() {
+				const fileInput = document.getElementById('image-upload');
+				fileInput.click();
+				
+				fileInput.onchange = function(e) {
+					const file = e.target.files[0];
+					if (!file) return;
+					
+					// Проверяем, что файл является изображением
+					if (!file.type.match('image.*')) {
+						alert('Пожалуйста, выберите файл изображения (JPEG, PNG, GIF и т.д.)');
+						return;
+					}
+					
+					const reader = new FileReader();
+					reader.onload = function(event) {
+						const base64 = event.target.result;
+						
+						function compressImage(srcBase64, quality = 0.9) {
+							return new Promise((resolve, reject) => {
+								const img = new Image();
+								img.crossOrigin = 'anonymous';
+								img.onload = () => {
+									const canvas = document.createElement('canvas');
+									const ctx = canvas.getContext('2d');
+									
+									// Set canvas dimensions to match the image
+									canvas.width = img.width;
+									canvas.height = img.height;
+									
+									// Draw image on canvas
+									ctx.drawImage(img, 0, 0);
+									
+									try {
+										// Convert to JPEG with specified quality (90%)
+										const compressedData = canvas.toDataURL('image/jpeg', quality);
+										resolve(compressedData);
+									} catch (error) {
+										reject('Failed to compress image: ' + error.message);
+									}
+								};
+								
+								img.onerror = () => reject('Error loading image');
+								img.src = srcBase64;
+							});
+						}
+						
+						compressImage(base64, 0.8)
+							.then(compressedBase64 => {
+								if (compressedBase64.length < base64.length)
+									f(compressedBase64);
+								else
+									f(base64);
+							})
+						  .catch(error => {
+							console.error('Error:', error);
+							f(base64);
+						  });
+						  
+						function f(base64){
+							const imgTag = `<center><img src="${base64}" alt="Изображение" style="max-width:100%;" /><center/>`;
+							
+							// Получаем текущее содержимое редактора
+							const editor = document.getElementById('condition-editor');
+							const currentValue = editor.value;
+							
+							// Вставляем тег изображения в текущую позицию курсора
+							const cursorPosition = editor.selectionStart;
+							const textBefore = currentValue.substring(0, cursorPosition);
+							const textAfter = currentValue.substring(cursorPosition);
+							
+							editor.value = shortenText(textBefore + '\n' + imgTag + '\n' + textAfter);
+							
+							// Обновляем предпросмотр
+							document.getElementById('condition-preview').innerHTML = expandText(editor.value);
+							
+							// Обновляем задачу
+							updateTaskFromForm();
+							
+							// Очищаем input file
+							if(fileInput.value){
+								try{
+									fileInput.value = ''; //for IE11, latest Chrome/Firefox/Opera...
+								}catch(err){ }
+								if(fileInput.value){ //for IE5 ~ IE10
+									var form = document.createElement('form'),
+										parentNode = fileInput.parentNode, ref = fileInput.nextSibling;
+									form.appendChild(fileInput);
+									form.reset();
+									parentNode.insertBefore(fileInput,ref);
+								}
+							}
+						}
+					};
+					
+					reader.readAsDataURL(file);
+				};
+			}
+			
+			let update_preview_timer = 0;
+			function update_preview(){
+				if (update_preview_timer) clearTimeout(update_preview_timer);
+				update_preview_timer = setTimeout(()=>{
+					document.getElementById('condition-preview').innerHTML = expandText(document.getElementById('condition-editor').value);
+					update_preview_timer = 0;
+				},1000);
+			}
+			
+			function init(){
+				// Назначение обработчика для кнопки вставки изображения
+				document.getElementById('insert-image').addEventListener('click', insertImageToEditor);
+				
+				// Инициализация полей
+				document.getElementById('task-name').value = task.name;
+				document.getElementById('condition-editor').value = shortenText(task.condition);
+				document.getElementById('default-program').value = task.default_program;
+				document.getElementById('solution').value = task.solution;
+				document.getElementById('length-check').checked = task.length_check || false;
+				
+				// Инициализация предпросмотра
+				document.getElementById('condition-preview').innerHTML = task.condition;
+				
+				// Обновление данных при изменении
+				document.querySelectorAll('#task-name, #condition-editor, #default-program, #solution, #length-check').forEach(element => {
+					element.addEventListener('input', ()=>{updateTaskFromForm(); update_preview(); });
+				});
+				
+				editorUpdateValue();
+			}
+			
+			function editorUpdateValue() {
+				let s = JSON.stringify(task);
+				console.log(task);
+				editorPostMessage('PreSetValue');
+				
+				if (s != last_editorUpdateValue) {
+					last_editorUpdateValue = s;
+					if (timer_editorUpdateValue) clearTimeout(timer_editorUpdateValue);
+					timer_editorUpdateValue = setTimeout(() => {
+						editorPostMessage('SetValue', task);
+					}, 500);
+				}
+			}
+			
+			function editorPostMessage(type, value) {
+				window.parent.postMessage({ type: editorPrefix + type, value: JSON.stringify(value) }, '*');
+			}
+			
+			function updateIframeHeight() {
+				const height = document.getElementsByClassName('container')[0].scrollHeight+50;
+				editorPostMessage('SetHeight', height);
+			}
+			
+			if (window.self !== window.top) {
+				window.addEventListener('message', function(event) {
+					if (event.data.type && event.data.type === editorPrefix + 'SetData') {
+						const data = JSON.parse(event.data.value);
+						Object.assign(task, data);
+						init();
+						createTabs();
+					}
+				});
+				
+				updateIframeHeight();
+				window.addEventListener('resize', updateIframeHeight);
+				editorPostMessage('Init');
+			}
+		});
+	</script>
+</body>
+</html>

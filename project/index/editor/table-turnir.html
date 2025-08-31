@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Рейтинговая таблица</title>
+	<link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+	<style>
+	* {
+		margin: 0;
+		padding: 0;
+		box-sizing: border-box;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	}
+
+	body {
+		background: #ffffff;
+		color: #333333;
+		min-height: 100vh;
+		padding: 20px;
+	}
+
+	.container {
+		display: flex;
+		flex-direction: column;
+		gap: 15px;
+	}
+
+	header {
+		text-align: center;
+		padding: 15px;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	h1 {
+		font-size: 1.8rem;
+		margin-bottom: 8px;
+		color: #1976d2;
+	}
+
+	.last-update {
+		font-size: 0.9rem;
+		color: #666;
+	}
+
+	.rating-table-container {
+		overflow-x: auto;
+		margin-top: 10px;
+		background: rgba(245, 245, 245, 0.9);
+		border-radius: 12px;
+		padding: 15px;
+		box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+		border: 1px solid rgba(0, 0, 0, 0.1);
+	}
+
+	table {
+		width: 100%;
+		border-collapse: collapse;
+		margin: 10px 0px;
+	}
+
+	th, td {
+		padding: 12px 10px;
+		text-align: center;
+		border: 1px solid #ddd;
+	}
+
+	th {
+		background-color: #f2f2f2;
+		font-weight: 600;
+		position: sticky;
+		top: 0;
+	}
+
+	.user-name {
+		text-align: left;
+		font-weight: 500;
+	}
+
+	.task-cell {
+		cursor: pointer;
+		position: relative;
+	}
+
+	/* Модальные окна */
+	.modal {
+		display: none;
+		position: fixed;
+		z-index: 1000;
+		left: 0;
+		top: 0;
+		width: 100%;
+		height: 100%;
+		background-color: rgba(0,0,0,0.5);
+	}
+
+	.modal-content {
+		background-color: #fefefe;
+		margin: 5% auto;
+		padding: 20px;
+		border: 1px solid #888;
+		width: 80%;
+		max-width: 800px;
+		border-radius: 8px;
+		max-height: 80vh;
+		overflow-y: auto;
+	}
+	
+	.task-name-cell {
+		cursor: pointer;
+	}
+
+	.close {
+		color: #aaa;
+		float: right;
+		font-size: 28px;
+		font-weight: bold;
+		cursor: pointer;
+	}
+
+	.close:hover {
+		color: black;
+	}
+
+	.attempt-item {
+		border: 1px solid #ddd;
+		border-radius: 5px;
+		padding: 10px;
+		margin-bottom: 10px;
+		cursor: pointer;
+	}
+
+	.attempt-item.success {
+		background-color: #dff0d8;
+	}
+
+	.attempt-item.failure {
+		background-color: #f2dede;
+	}
+
+	.attempt-details {
+		display: none;
+		margin-top: 10px;
+		padding: 10px;
+		background-color: #f9f9f9;
+		border-radius: 5px;
+		border: 1px solid #ddd;
+	}
+
+	.code-block {
+		background-color: #f5f5f5;
+		padding: 10px;
+		border-radius: 5px;
+		font-family: monospace;
+		white-space: pre-wrap;
+		overflow-x: auto;
+	}
+
+	.error-item {
+		color: #d9534f;
+		margin-bottom: 5px;
+	}
+
+	.task-tooltip {
+		position: absolute;
+		bottom: 100%;
+		left: 50%;
+		transform: translateX(-50%);
+		background-color: #333;
+		color: #fff;
+		padding: 5px 10px;
+		border-radius: 4px;
+		font-size: 12px;
+		white-space: nowrap;
+		z-index: 100;
+		display: none;
+	}
+
+	th:hover .task-tooltip {
+		display: block;
+	}
+
+	.task-cell-success {
+		color: #0a0;
+		font-weight: bold;
+	}
+
+	.zoom-btn {
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		background: rgba(224, 224, 224, 0.8);
+		border: none;
+		color: #333333;
+		font-size: 1.2rem;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		transition: all 0.2s ease;
+	}
+
+	.zoom-btn:hover {
+		background: rgba(200, 200, 200, 0.9);
+		transform: scale(1.1);
+	}
+	</style>
+</head>
+<body>
+	<div class="container">
+		
+		<div class="rating-table-container">
+			<table id="ratingTable">
+				<thead>
+					<tr>
+						<th>№</th>
+						<th>Кто</th>
+						<th>Группа</th>
+						<th>=</th>
+						<th>Штраф</th>
+						<!-- Колонки для задач будут добавлены динамически -->
+					</tr>
+				</thead>
+				<tbody>
+					<!-- Данные будут заполнены динамически -->
+				</tbody>
+			</table>
+		</div>
+	</div>
+
+	<!-- Модальное окно для попыток решения -->
+	<div id="attemptsModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2 id="modalTitle">Попытки решения</h2>
+			<div id="attemptsList"></div>
+		</div>
+	</div>
+
+	<!-- Модальное окно для деталей попытки -->
+	<div id="attemptDetailModal" class="modal">
+		<div class="modal-content">
+			<span class="close">&times;</span>
+			<h2 id="detailModalTitle">Детали попытки</h2>
+			<div>
+				<h3>Код программы:</h3>
+				<pre class="code-block" id="attemptCode"></pre>
+				<div id="attemptErrors"></div>
+			</div>
+		</div>
+	</div>
+	
+	<button class="zoom-btn" id="resetZoomBtn"style="position: absolute; bottom: 5px; right: 5px;"><i class="fas fa-expand-arrows-alt"></i></button>
+
+	<script>
+	// Глобальные переменные
+	window.turnir = {};
+	window.task_names = [];
+	window.users = [];
+	window.ratingData = [];
+	window.lastUpdate = null;
+
+	document.getElementById('resetZoomBtn').addEventListener('click', ()=>{
+		window.parent.postMessage({ 
+			type: editorPrefix + 'Full'
+		}, '*');
+	});
+
+	// Функция для обновления времени последнего обновления
+	function updateLastUpdateTime() {
+		const now = new Date();
+		window.lastUpdate = now;
+		//document.getElementById('lastUpdateTime').textContent = now.toLocaleTimeString();
+	}
+
+	function GetExcelColumnName(number)
+	{
+		var colName = '',
+			dividend = Math.floor(Math.abs(number)),
+			rest;
+		while (dividend > 0) {
+			rest = (dividend - 1) % 26;
+			colName = String.fromCharCode(65 + rest) + colName;
+			dividend = parseInt((dividend - rest)/26);
+		}
+		return colName;
+	}
+
+	// Функция для расчета данных пользователя
+	function get_data_by_user(user_map_data_2) {
+		let data = {
+			score: 0, 
+			fine: 0, 
+			tasks: task_names.map(name => {
+				return {
+					name: name,
+					solved: false,
+					attempts: 0,
+					firstSuccessTime: null,
+					attemptsList: []
+				};
+			}),
+			dollars: Object.values(user_map_data_2.dollars).filter(x => x > 1).length
+		};
+		
+		// Обрабатываем программы
+		user_map_data_2.programs.forEach(program => {
+			const taskIndex = task_names.indexOf(program.task_name);
+			if (taskIndex === -1) return;
+			
+			const taskData = data.tasks[taskIndex];
+			taskData.attempts++;
+			
+			// Добавляем попытку в список
+			const attempt = {
+				send_time: program.send_time,
+				programm: program.programm,
+				error: program.error,
+				value: program.value
+			};
+			taskData.attemptsList.push(attempt);
+			
+			// Если задача решена и это первое успешное решение
+			if (program.value === 1 && !taskData.solved) {
+				taskData.solved = true;
+				taskData.firstSuccessTime = program.send_time;
+				// Добавляем штраф за эту задачу
+				data.fine += Math.floor((program.send_time/1000 - turnir.time_start)/10);
+			}
+		});
+		
+		// Считаем общий счет (решенные задачи + монетки)
+		data.score = data.tasks.filter(task => task.solved).length * 100 + data.dollars;
+		
+		return data;
+	}
+
+	// Функция для подготовки данных рейтинга
+	function prepareRatingData() {
+		window.ratingData = users.map(user => {
+			const userData = get_data_by_user(user.map_data);
+			return {
+				name: user.name,
+				group: user.group,
+				score: userData.score,
+				fine: userData.fine,
+				tasks: userData.tasks
+			};
+		});
+		
+		// Сортируем по очкам (по убыванию) и штрафу (по возрастанию)
+		window.ratingData.sort((a, b) => {
+			if (b.score !== a.score) {
+				return b.score - a.score;
+			}
+			return a.fine - b.fine;
+		});
+		
+		// Добавляем места
+		window.ratingData.forEach((user, index) => {
+			user.rank = index + 1;
+		});
+	}
+
+	// Функция для отрисовки таблицы
+	function renderRatingTable() {
+		const table = document.getElementById('ratingTable');
+		const thead = table.querySelector('thead tr');
+		const tbody = table.querySelector('tbody');
+		
+		// Очищаем таблицу
+		tbody.innerHTML = '';
+		
+		// Добавляем колонки для задач, если их еще нет
+		if (thead.children.length === 5) {
+			task_names.forEach((task, index) => {
+				const th = document.createElement('th');
+				th.className = 'task-name-cell';
+				th.innerHTML = `${GetExcelColumnName(index+1)}`;
+				th.onclick = ()=>top.openPathInEditor('task:'+turnir.project+':'+index);
+				// Добавляем подсказку с названием задачи
+				
+				const tooltip = document.createElement('div');
+				tooltip.className = 'task-tooltip';
+				tooltip.textContent = task;
+				th.appendChild(tooltip);
+				
+				thead.appendChild(th);
+			});
+		}
+		
+		// Заполняем таблицу данными
+		window.ratingData.forEach(user => {
+			const row = document.createElement('tr');
+			
+			// Место
+			const rankCell = document.createElement('td');
+			rankCell.textContent = user.rank;
+			row.appendChild(rankCell);
+			
+			// Имя
+			const nameCell = document.createElement('td');
+			nameCell.className = 'user-name';
+			nameCell.textContent = user.name;
+			row.appendChild(nameCell);
+			
+			// Группа
+			const groupCell = document.createElement('td');
+			groupCell.textContent = user.group;
+			row.appendChild(groupCell);
+			
+			// Очки
+			const scoreCell = document.createElement('td');
+			scoreCell.textContent = user.score;
+			row.appendChild(scoreCell);
+			
+			// Штраф
+			const fineCell = document.createElement('td');
+			fineCell.textContent = user.fine;
+			row.appendChild(fineCell);
+			
+			// Данные по задачам
+			user.tasks.forEach(task => {
+				const taskCell = document.createElement('td');
+				taskCell.addEventListener('click', function() {
+					const userName = this.getAttribute('data-user');
+					const taskName = this.getAttribute('data-task');
+					
+					// Находим пользователя
+					const user = window.ratingData.find(u => u.name === userName);
+					if (!user) return;
+					
+					// Находим задачу
+					const task = user.tasks.find(t => t.name === taskName);
+					if (!task) return;
+					
+					// Показываем модальное окно с попытками
+					showAttemptsModal(userName, taskName, task.attemptsList);
+				});
+				
+				taskCell.className = 'task-cell';
+				if (task.solved) {
+					taskCell.className += ' task-cell-success';
+					// Находим номер первой успешной попытки
+					const firstSuccessIndex = task.attemptsList.findIndex(a => a.value === 1) + 1;
+					taskCell.textContent = `+${firstSuccessIndex}`;
+					const sub_text = document.createElement('span');
+					function formatTime(nseconds) {
+						const seconds = Math.abs(Math.floor(nseconds));
+						return (nseconds<0?'-':'')+[
+							Math.floor(seconds / 3600),
+							Math.floor((seconds % 3600) / 60),
+							seconds % 60
+						].map(part => part.toString().padStart(2, '0')).join(':');
+					}
+					sub_text.textContent = formatTime(task.attemptsList.find(a => a.value === 1).send_time/1000 - turnir.time_start);
+					sub_text.style = 'font-size: 11px; color: #555';
+					
+					taskCell.appendChild(document.createElement('br'));
+					taskCell.appendChild(sub_text);
+				} else if (task.attempts > 0) {
+					taskCell.textContent = `-${task.attempts}`;
+				} else {
+					taskCell.textContent = '0';
+				}
+				
+				// Сохраняем данные о задаче для обработки клика
+				taskCell.setAttribute('data-user', user.name);
+				taskCell.setAttribute('data-task', task.name);
+				
+				row.appendChild(taskCell);
+			});
+			
+			tbody.appendChild(row);
+		});
+		
+		// Добавляем обработчики событий для ячейки с задачами
+		addTaskCellsListeners();
+	}
+
+	// Функция для добавления обработчиков событий на ячейки с задачами
+	function addTaskCellsListeners() {
+		document.querySelectorAll('.task-cell').forEach(cell => {
+		});
+	}
+
+	// Функция для показа модального окна с попытками
+	function showAttemptsModal(userName, taskName, attempts) {
+		const modal = document.getElementById('attemptsModal');
+		const title = document.getElementById('modalTitle');
+		const attemptsList = document.getElementById('attemptsList');
+		
+		title.textContent = `Попытки решения: ${userName} - ${taskName}`;
+		attemptsList.innerHTML = '';
+		
+		// Добавляем попытки в список
+		attempts.forEach((attempt, index) => {
+			const attemptItem = document.createElement('div');
+			attemptItem.className = `attempt-item ${attempt.value === 1 ? 'success' : 'failure'}`;
+			
+			const date = new Date(attempt.send_time);
+			const status = attempt.value === 1 ? 'Успешно' : 'Неудача';
+			
+			attemptItem.innerHTML = `
+				<div><strong>Попытка #${index + 1}</strong> (${date.toLocaleString()})</div>
+				<div>Статус: ${status}</div>
+				<div>Результат: ${attempt.value * 100}%</div>
+			`;
+			
+			// Добавляем обработчик для показа деталей попытки
+			const clickHandler = () => {
+				showAttemptDetailModal(userName, taskName, attempt, index + 1);
+			};
+			attemptItem.addEventListener('click', clickHandler);
+			
+			// Сохраняем ссылку на обработчик для последующей очистки
+			attemptItem._clickHandler = clickHandler;
+			
+			attemptsList.appendChild(attemptItem);
+		});
+		
+		// Функции для обработки событий
+		const closeModal = () => {
+			modal.style.display = 'none';
+			cleanupEventListeners();
+		};
+		
+		const outsideClickHandler = (event) => {
+			if (event.target === modal) {
+				closeModal();
+			}
+		};
+		
+		// Добавляем обработчики событий
+		const closeBtn = modal.querySelector('.close');
+		closeBtn.addEventListener('click', closeModal);
+		window.addEventListener('click', outsideClickHandler);
+		
+		// Сохраняем ссылки на обработчики для очистки
+		modal._closeHandler = closeModal;
+		modal._outsideClickHandler = outsideClickHandler;
+		
+		// Функция для очистки обработчиков
+		function cleanupEventListeners() {
+			closeBtn.removeEventListener('click', modal._closeHandler);
+			window.removeEventListener('click', modal._outsideClickHandler);
+			
+			// Очищаем обработчики кликов на элементах попыток
+			const attemptItems = attemptsList.querySelectorAll('.attempt-item');
+			attemptItems.forEach(item => {
+				if (item._clickHandler) {
+					item.removeEventListener('click', item._clickHandler);
+					delete item._clickHandler;
+				}
+			});
+			
+			// Удаляем ссылки на обработчики
+			delete modal._closeHandler;
+			delete modal._outsideClickHandler;
+		}
+		
+		// Показываем модальное окно
+		modal.style.display = 'block';
+		
+		// Сохраняем функцию очистки для внешнего доступа
+		modal.cleanup = cleanupEventListeners;
+	}
+
+	// Функция для показа деталей попытки
+	function showAttemptDetailModal(userName, taskName, attempt, attemptNumber) {
+		const modal = document.getElementById('attemptDetailModal');
+		const title = document.getElementById('detailModalTitle');
+		const codeBlock = document.getElementById('attemptCode');
+		const errorsContainer = document.getElementById('attemptErrors');
+		
+		title.textContent = `Детали попытки #${attemptNumber}: ${userName} - ${taskName}`;
+		codeBlock.textContent = attempt.programm;
+		
+		//top.openPathInEditor('task:'+turnir.project+':'+0);
+		
+		// Очищаем контейнер с ошибками
+		errorsContainer.innerHTML = '';
+		
+		// Добавляем ошибки, если они есть
+		if (attempt.error && attempt.error.length > 0) {
+			const errorsTitle = document.createElement('h3');
+			errorsTitle.textContent = 'Ошибки:';
+			errorsContainer.appendChild(errorsTitle);
+			
+			attempt.error.forEach(errorGroup => {
+				if (errorGroup.errors && errorGroup.errors.length > 0) {
+					const testHeader = document.createElement('h4');
+					testHeader.textContent = `Тест ${errorGroup.test_number + 1}:`;
+					errorsContainer.appendChild(testHeader);
+					
+					errorGroup.errors.forEach(error => {
+						const errorItem = document.createElement('div');
+						errorItem.className = 'error-item';
+						errorItem.textContent = `Строка ${error[2]+1}: ${error[1]}`;
+						errorsContainer.appendChild(errorItem);
+					});
+				}
+			});
+		} else if (attempt.value !== 1) {
+			const noErrors = document.createElement('div');
+			noErrors.textContent = 'Конкретные ошибки не указаны в данных.';
+			errorsContainer.appendChild(noErrors);
+		}
+		
+		// Функции для обработки событий
+		const closeModal = () => {
+			modal.style.display = 'none';
+			cleanupEventListeners();
+		};
+		
+		const outsideClickHandler = (event) => {
+			if (event.target === modal) {
+				closeModal();
+			}
+		};
+		
+		// Добавляем обработчики событий
+		const closeBtn = modal.querySelector('.close');
+		closeBtn.addEventListener('click', closeModal);
+		window.addEventListener('click', outsideClickHandler);
+		
+		// Сохраняем ссылки на обработчики для очистки
+		modal._closeHandler = closeModal;
+		modal._outsideClickHandler = outsideClickHandler;
+		
+		// Функция для очистки обработчиков
+		function cleanupEventListeners() {
+			closeBtn.removeEventListener('click', modal._closeHandler);
+			window.removeEventListener('click', modal._outsideClickHandler);
+			
+			// Удаляем ссылки на обработчики
+			delete modal._closeHandler;
+			delete modal._outsideClickHandler;
+		}
+		
+		// Сохраняем функцию очистки для внешнего доступа
+		modal.cleanup = cleanupEventListeners;
+		
+		// Показываем модальное окно
+		modal.style.display = 'block';
+	}
+
+	// Функция для обновления UI
+	function updateUI() {
+		prepareRatingData();
+		renderRatingTable();
+		updateLastUpdateTime();
+		updateIframeHeight();
+		
+		// Устанавливаем следующее обновление через 20 секунд
+		setTimeout(update_local_map_data, 20000);
+	}
+
+	// Функция для получения данных с сервера
+	function update_local_map_data() {
+		top.server_request('get_user_map_data', window.tuid, (d) => { 
+			window.users = d; 
+			updateUI(); 
+		});
+	}
+
+	// Инициализация
+	function initForm() {
+		update_local_map_data();
+	}
+
+	// Работа с iframe
+	const editorPrefix = 'turnirTable';
+		
+	function updateIframeHeight() {
+		const height = document.getElementsByClassName('container')[0].scrollHeight + 45;
+		window.parent.postMessage({ 
+			type: editorPrefix + 'SetHeight', 
+			value: JSON.stringify(height) 
+		}, '*');
+	}
+		
+	window.addEventListener('load', () => {
+		window.addEventListener('message', function(event) {
+			if (event.data.type && event.data.type === editorPrefix + 'SetData') {
+				Object.assign(window.turnir, JSON.parse(event.data.value));
+				
+				window.tuid = JSON.parse(event.data.additional.tuid);
+				window.task_names = JSON.parse(event.data.additional.task_names);
+				initForm();
+			}
+		});
+			
+		updateIframeHeight();
+		window.addEventListener('resize', updateIframeHeight);
+		window.parent.postMessage({ type: editorPrefix + 'Init' }, '*');
+	});
+	</script>
+</body>
+</html>

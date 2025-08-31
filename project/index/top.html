@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ru">
+	<head>
+		<meta charset="UTF-8">
+		<title>WebKumir</title>
+		
+		<!-- IE -->
+		<link rel="shortcut icon" type="image/x-icon" href="tileset/favicon.ico" />
+		<!-- other browsers -->
+		<link rel="icon" type="image/x-icon" href="tileset/favicon.ico" />
+		
+		<style type="text/css">
+		
+			table {
+				width: 100%;
+				font-family: verdana,arial,sans-serif;
+				font-size: 1rem;
+				border-collapse: collapse;
+			}
+			td, th {
+				text-align: center;
+				background-color: #f8f8f8;
+				border-top: 1px solid #e1e1e1;
+				border-right: 1px solid #e1e1e1;
+				border-left: 1px solid #e1e1e1;
+				border-bottom: 1px solid #e1e1e1;
+				padding: 0.4em;
+				overflow: hidden;
+				max-width: 20em !important;
+				padding-left: 4px;
+				padding-right: 4px;
+			}
+		
+		</style>
+		<script>
+function swap(items, firstIndex, secondIndex){
+    var temp = items[firstIndex];
+    items[firstIndex] = items[secondIndex];
+    items[secondIndex] = temp;
+}
+
+function partition(items, left, right) {
+    var pivot,pivot_s
+        i       = left,
+        j       = right;
+	pivot = -(parseFloat(items[Math.floor((right + left) / 2)][2])*1000000-parseFloat(items[Math.floor((right + left) / 2)][3]));
+	pivot_s = items[Math.floor((right + left) / 2)][1];
+    while (i <= j) {
+        while ((-(parseFloat(items[i][2])*1000000-parseFloat(items[i][3])) < pivot)||((-(parseFloat(items[i][2])*1000000-parseFloat(items[i][3])) == pivot)&&(items[i][1]<pivot_s))) {
+            i++;
+        }
+        while ((-(parseFloat(items[j][2])*1000000-parseFloat(items[j][3])) > pivot)||((-(parseFloat(items[j][2])*1000000-parseFloat(items[j][3])) == pivot)&&(items[j][1]>pivot_s))) {
+            j--;
+        }
+        if (i <= j) {
+            swap(items, i, j);
+            i++;
+            j--;
+        }
+    }
+    return i;
+}
+// first call
+
+function QSORT(items, left, right) {
+    var index;
+    if (items.length > 1) {
+        index = partition(items, left, right);
+        if (left < index - 1) {
+            QSORT(items, left, index - 1);
+        }
+        if (index < right) {
+            QSORT(items, index, right);
+        }
+    }
+    return items;
+}
+
+function GetName(ii)
+{
+   var a=0;
+   var b=0;
+   a = ii;
+   var ConvertToLetter = "";
+   while(ii > 0)
+   {
+      a = Math.floor((ii - 1) / 26);
+      b = (ii - 1) % 26;
+      ConvertToLetter = String.fromCharCode(b + 65) + ConvertToLetter;
+      ii = a;
+   }
+   return ConvertToLetter;
+}
+
+function ParseData(s){
+	setTimeout(LoadData, 10000);
+	var arr=[];
+	var isfroz=s.freeze;
+	//debugger;
+	arr[0]=['Номер', 'Кто', '=', '<span style="width: 95px;display: inline-block;">штраф<img onclick="window.open(\'./whatisfine.html\', \'_blank\');" title="Что такое штраф?" style="margin-left: 3px;vertical-align:middle;" alt="Что такое штраф?" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJPSURBVEhLtZYxbuJQEIYpEBRQIeiMRIVS5AZAR0mx5d6AC6SkoNgTIHEFFCqa3GLpU4CEBAUSmISNRIjtgPN/j5dsEmHW0sojDXma+f9/5r03tpOKsjAM0/Kr4/F4o7/dc25zV/K0pcUzER0rcC/3Pdlms/Hm8/kBZ42RA2OxjqVHG50I2JLfHQ4Hb7lc7gaDwbbdbruNRuOhWq36OGti5MCAhQM3cjdW/Kd8sdvtvOFw+FCr1Z5yuZyfyWSCYrHoOY7zirMmRg4MWDhw0ThbhOoA2H6n03ELhcJLPp/3m83mn16vtx2Px+50On3GWRMjBwYsHLi2SMvKnkwBR35HFwDVmVcul/f9fn+zWq32OoKjuvpixMiBAQsHrt0Jx3W6E2GZli7nyFbVjREfjUZb3eOLgFz07yAIwsViYZw1MXJgwMKBiwZaaKJNAUbxnsuq1+tPbJmufN/fK35r878QVt44a2I2dwsWDlw00EKTPMdzI/c1EY9cGue6Xq+fPwCnXXa/FyBmc6ZBOHDRQAtNtA2ZmWbsstlswOUp8XeLJ5Ef6vIRYZw1MZszRwwHLhpooUncFHBd18x2qVTymBCBmYRrBDDEogpgYOHARQMtND8K8HTqATJzPplMOJ6Z4hXLNxiEzx0RBhYOXDTQQtNg+IlTYDabhZVKxThrQ7YG9mKBGEd0sQBYOJFHFOOSIwuAYQ3n7CUrEWtMLxT455gm+6DpJ9lXBSZgci+7d1Mgudc1pqaS/eBgtkgyn8zPJmAyH/3PRidyxvA//m1Jpd4AmceFkKb5xGIAAAAASUVORK5CYII=" width="22" height="22"></span>'];
+	s.task_names.map(x=>arr[0].push(x));
+	
+	Object.keys(s.data).map((x,i)=>{
+		arr[i+1]=[(s.data[x].this_user? -1: 1)*(i+1), x, s.data[x].score, s.data[x].fine];
+		s.data[x].tasks.map(x=>arr[i+1].push(x));
+	});
+	//console.log(arr);
+	arr=QSORT(arr, 1, arr.length - 1);
+	//console.log(arr);
+	var out_s='<caption>Положение</caption><tbody>';
+	//if (isfroz=='F')
+	//	out_s='<caption><font>Положение (</font><font color="#FF0000">з</font><font color="#FFFF00">а</font><font color="#00FF00">м</font><font color="#00FFFF">о</font><font color="#0000FF">р</font><font color="#FF00FF">о</font><font color="#FF0000">ж</font><font color="#FFFF00">е</font><font color="#00FF00">н</font><font color="#00FFFF">о</font><font color="#0000FF"></font><font>)</font></caption><tbody>';
+	for (var i=0;i<arr.length;i++)
+		{
+			if (i!=0 && arr[i][0]>0 && isfroz)
+				out_s+='<tr style="opacity: 0.5">';
+			else if (i!=0 && arr[i][0]<0 && !isfroz)
+				out_s+='<tr style="font-weight: bold">';
+			else
+				out_s+='<tr>';
+			
+			if (i==0)
+				out_s+='<th>'+arr[i][0]+'</th>';
+			else
+				out_s+='<td>'+i+'</td>';
+			for (var j=1;j<arr[i].length;j++)
+				{
+					if (i==0)
+					{
+						if (j<4)
+						{	
+							//if (arr[i][j].indexOf('штраф<')>=0)
+							//	out_s+='<th  style="width:400px;position:relative;">'+arr[i][j]+'</th>';
+							//else
+								out_s+='<th>'+arr[i][j]+'</th>';
+						}
+						else
+						//if (my_access.indexOf(arr[i][j])<0)
+						//	out_s+='<th title="'+arr[i][j]+'" style="color: #000000;text-decoration: underline;">'+GetName(j-3)+'</th>';
+						//else
+						if (s.accesses.indexOf(arr[i][j])>=0)
+							out_s+='<th title="'+arr[i][j]+'" style="color: #288ce4;text-decoration: underline;" onclick="top.OpenEditor(\''+arr[i][j]+'\')">'+GetName(j-3)+'</th>';
+						else
+							out_s+='<th title="'+arr[i][j]+'" style="">'+GetName(j-3)+'</th>';
+					}
+					else
+					{
+						if ((arr[i][j]==100)&&(j>2))
+							out_s+='<td style="color: #0a0;">';
+						else
+							out_s+='<td>';
+						out_s+=arr[i][j];
+						out_s+='</td>';
+					}
+				}
+			out_s+='</tr>';
+		}
+	out_s+='</tbody>';
+	if (document.getElementById("id_push_data").innerHTML!=out_s)
+	{
+		var temp, div;
+		var tbody=document.getElementById("id_push_data");
+		while(temp = tbody.firstChild) {
+			tbody.removeChild(temp);
+		}
+		div = document.createElement('div');
+		div.innerHTML = '<table>' + out_s + '</table>' ;
+		div = div.getElementsByTagName('tbody')[0];
+		while(temp = div.firstChild) {
+			tbody.appendChild(temp);
+		}
+	}
+}
+function LoadData()
+{
+	if (document.readyState == 'complete') {
+		top.server_request('get_top', {}, ParseData);
+	}else{
+		setTimeout(LoadData, 1000/60);
+	}
+}
+LoadData();
+		</script>
+	</head>
+	<body>
+		<table id="id_push_data" border="0">
+			<tr>
+				<th>Номер</th>
+				<th>Кто</th>
+				<th>=</th>
+				<th>штраф</th>
+				<th>Загрузка</th>
+				<th>Загрузка</th>
+			</tr>
+			<tr>
+				<td>Загрузка</td>
+				<td>Загрузка</td>
+				<td>Загрузка</td>
+				<td>Загрузка</td>
+				<td>Загрузка</td>
+				<td>Загрузка</td>
+			</tr>
+		</table>
+	</body>
+</html>

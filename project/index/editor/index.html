@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Административная панель</title>
+	
+	
+	<!-- IE -->
+	<link rel="shortcut icon" type="image/x-icon" href="/tileset/favicon.ico" />
+	<!-- other browsers -->
+	<link rel="icon" type="image/x-icon" href="/tileset/favicon.ico" />
+	
+	<script type="text/javascript">
+		var list_file=[];
+		var also_list_file=[];//'js/js.js','js/kumir.js','js/select_server_css.css','js/select_server_js.js','TrackBar/winclassic.css','lib/codemirror.css','lib/show-hint.css','lib/lint.css','js/index.css','trackbar/slider.js','split/line.js','lib/codemirror.js','lib/show-hint.js','lib/lint.js'];
+		var list_file_after=[];
+		
+		var frontend_demo=(location.href.includes(':8081')||location.href.includes('.github.io'));
+		
+		if (frontend_demo) {
+			list_file.unshift('../public_server/api.js');
+			list_file.unshift('../public_server/frontend_demo.js');
+			list_file.unshift('../js/kumir.js');
+		}
+		
+		function onLoadScripts()
+		{
+			init();
+		}
+	</script>
+	
+	<script type="text/javascript" src="../js/loader.js"></script>
+	
+	<script type="text/javascript">
+		server_set_default_varible('token',GetVal('token',''));
+	</script>
+	
+	<style>
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+			font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		}
+		
+		body {
+			display: flex;
+			height: 100vh;
+			background-color: #f5f7fa;
+			overflow: hidden;
+		}
+		
+		.menu-container {
+			min-width: 300px;
+			width: 20%;
+			background: linear-gradient(135deg, #2c3e50, #1a1a2e);
+			color: white;
+			overflow: auto;
+			box-shadow: 3px 0 15px rgba(0, 0, 0, 0.2);
+			z-index: 10;
+			padding: 10px;
+		}
+		
+		.menu-header {
+			padding: 15px 10px;
+			background-color: rgba(0, 0, 0, 0.2);
+			border-bottom: 1px solid #34495e;
+			margin-bottom: 10px;
+		}
+		
+		.menu-header h1 {
+			font-size: 1.3rem;
+			display: flex;
+			align-items: center;
+		}
+		
+		.menu-header h1 i {
+			margin-right: 10px;
+			color: #3498db;
+		}
+		
+		.menu-header p {
+			font-size: 0.8rem;
+			color: #bdc3c7;
+			margin-top: 5px;
+		}
+		
+		.menu-items {
+			padding: 5px 0;
+		}
+		
+		.menu-category {
+			margin-bottom: 5px;
+			background-color: rgba(255, 255, 255, 0.05);
+			border-radius: 5px;
+			overflow: hidden;
+		}
+		
+		.menu-category-header {
+			padding: 10px 15px;
+			font-weight: 600;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			transition: all 0.3s;
+			user-select: none;
+		}
+		
+		.menu-category-header:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+		
+		.menu-category-header i {
+			margin-right: 8px;
+			width: 18px;
+			text-align: center;
+			transition: transform 0.3s;
+		}
+		
+		.menu-category.expanded > .menu-category-header i {
+			transform: scale(1.2);
+		}
+		
+		.menu-category-content {
+			display: none;
+			padding: 5px 0 5px 8px;
+			background-color: rgba(0, 0, 0, 0.15);
+		}
+		
+		.menu-category.expanded > .menu-category-content {
+			display: block;
+		}
+		
+		.menu-item {
+			padding: 8px 15px;
+			cursor: pointer;
+			transition: all 0.2s;
+			display: flex;
+			align-items: center;
+			position: relative;
+			border-radius: 4px;
+			margin: 3px 0;
+			font-size: 0.9rem;
+			word-break: break-all;
+		}
+		
+		.menu-item:hover {
+			background-color: rgba(255, 255, 255, 0.1);
+		}
+		
+		.menu-item.active {
+			background-color: rgba(52, 152, 219, 0.3);
+			border-left: 3px solid #3498db;
+		}
+		
+		.menu-item i {
+			margin-right: 8px;
+			font-size: 0.8rem;
+			min-width: 18px;
+		}
+		
+		.group-tag {
+			background-color: #3498db;
+			color: white;
+			font-size: 0.65rem;
+			padding: 1px 5px;
+			border-radius: 8px;
+			margin-left: 8px;
+		}
+		
+		.editor-container {
+			width: 80%;
+			display: flex;
+			flex-direction: column;
+			background-color: #ecf0f1;
+		}
+		
+		.editor-header {
+			padding: 12px 20px;
+			background-color: white;
+			box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+		}
+		
+		.editor-header h2 {
+			color: #2c3e50;
+			font-size: 1.2rem;
+		}
+		
+		.editor-header .path {
+			color: #7f8c8d;
+			font-size: 0.85rem;
+		}
+		
+		.editor-content {
+			flex: 1;
+			padding: 20px;
+			overflow-y: auto;
+		}
+		
+		.editor-description {
+			background-color: white;
+			border-radius: 8px;
+			padding: 20px;
+			box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+			max-width: 1024px;
+			margin: 0 auto;
+		}
+		
+		.editor-description h3 {
+			color: #2c3e50;
+			margin-bottom: 12px;
+			padding-bottom: 8px;
+			border-bottom: 2px solid #3498db;
+			font-size: 1.3rem;
+		}
+		
+		.editor-description p {
+			line-height: 1.6;
+			color: #34495e;
+			margin-bottom: 12px;
+			font-size: 0.95rem;
+		}
+		
+		.editor-description .code {
+			background-color: #2c3e50;
+			color: #ecf0f1;
+			padding: 12px;
+			border-radius: 6px;
+			font-family: 'Courier New', monospace;
+			margin: 12px 0;
+			overflow-x: auto;
+			font-size: 0.85rem;
+		}
+		
+		.features-list {
+			margin: 15px 0;
+			padding-left: 20px;
+		}
+		
+		.features-list li {
+			margin-bottom: 8px;
+			position: relative;
+			padding-left: 25px;
+			font-size: 0.95rem;
+		}
+		
+		.features-list li:before {
+			content: "✓";
+			position: absolute;
+			left: 0;
+			top: 0;
+			color: #27ae60;
+			font-weight: bold;
+		}
+		
+		.mock-editor {
+			background-color: #f8f9fa;
+			border: 1px solid #ddd;
+			border-radius: 6px;
+			padding: 12px;
+			margin-top: 15px;
+			font-family: 'Courier New', monospace;
+			height: 180px;
+			overflow: auto;
+			font-size: 0.85rem;
+		}
+		
+		.status-bar {
+			background-color: #2c3e50;
+			color: #ecf0f1;
+			padding: 6px 15px;
+			font-size: 0.8rem;
+			display: flex;
+			justify-content: space-between;
+		}
+		
+		.loading-indicator {
+			display: none;
+			position: fixed;
+			top: 10px;
+			right: 10px;
+			background: #3498db;
+			color: white;
+			padding: 8px 15px;
+			border-radius: 20px;
+			font-size: 0.9rem;
+			box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+			z-index: 100;
+		}
+		
+		@keyframes fadeIn {
+			from { opacity: 0; transform: translateY(10px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+		
+		.editor-description {
+			animation: fadeIn 0.4s ease-out;
+		}
+		
+		.last-updated {
+			color: #7f8c8d;
+			font-size: 0.8rem;
+			margin-top: 10px;
+			text-align: right;
+		}
+		
+		.add-button {
+			background: transparent;
+			border: none;
+			color: #bdc3c7;
+			cursor: pointer;
+			margin-left: auto;
+			padding: 0 5px;
+			font-size: 0.9rem;
+			transition: all 0.2s;
+		}
+
+		.add-button:hover {
+			color: #3498db;
+			transform: scale(1.1);
+		}
+		
+		.remove-button {
+			background: transparent;
+			border: none;
+			color: #c3bdbd;
+			cursor: pointer;
+			margin-left: auto;
+			padding: 0 5px;
+			font-size: 0.9rem;
+			transition: all 0.2s;
+		}
+
+		.remove-button:hover {
+			color: #db2034;
+			transform: scale(1.1);
+		}
+	</style>
+	<link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+</head>
+<body>
+	<div class="load_div" id="load_div_id" style="width: 100%;height: 100%;background:  #341a3a;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 400; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;position: absolute;top: 50%;left: 50%;margin: -20px 0 0 -150px;width:300px;height:40px;" id="loading_text">Загрузка... (DOM)</h1>
+	</div>
+	<!-- Индикатор загрузки -->
+	<div class="loading-indicator" id="loading-indicator">
+		<i class="fas fa-sync fa-spin"></i> Обновление данных...
+	</div>
+	
+	<!-- Левое меню -->
+	<div class="menu-container" id="menu-container">
+		<div class="menu-header">
+			<h1><i class="fas fa-cogs"></i> Админ-панель</h1>
+			<!-- <p>Данные обновляются автоматически</p> -->
+		</div>
+		<div class="menu-items" id="menu-items">
+			<!-- Меню будет сгенерировано динамически -->
+		</div>
+	</div>
+	
+	<!-- Основная область -->
+	<div class="editor-container">
+		<div class="editor-header">
+			<h2 id="editor-title">Выберите элемент для редактирования</h2>
+			<div class="path" id="editor-path"></div>
+		</div>
+		
+		<div class="editor-content">
+			<div class="editor-description" id="editor-description">
+				<h3>Добро пожаловать в административную панель</h3>
+				<p>Используйте левое меню для навигации по разделам данных. При выборе элемента в правой части отобразится редактор.</p>
+				<div class="last-updated" id="last-updated">Данные еще не загружены</div>
+			</div>
+		</div>
+		
+		<div class="status-bar">
+			<div id="status-message">Загрузка данных...</div>
+			<!--<div><i class="fas fa-sync fa-spin"></i> <span id="update-timer">10</span> сек до обновления</div>-->
+		</div>
+	</div>
+	
+	<script>
+		// Глобальные переменные для хранения данных
+		let allData = {
+			players: {},
+			turnirs: {},
+			settings_registration_enabled: true,
+			token2player: {}
+		};
+		
+		let staticData = {
+			projects: {},
+			group2permissions: {},
+			files: {}
+		};
+		
+		// Состояние интерфейса
+		let uiState = {
+			currentPath: null,
+			expandedSections: new Set(),
+			updateTimer: null,
+			updateCounter: 10
+		};
+		
+		
+		
+		function createNewUser(g) {
+			let userName = prompt('Введите имя нового пользователя:');
+			if (!userName) return;
+			userName = userName.trim();
+			if (!userName) return;
+			
+			const uhash = uid_gen();
+			
+			if (allData.players[uhash] || Object.values(allData.players).map(x=>x.name).includes(userName)) {
+				alert('Пользователь уже существует!');
+				return;
+			}
+
+			showLoading(true);
+			clinet_admin_edit({
+				path: 'players;'+uhash,
+				method: 'set',
+				obj: 'all_data',
+				value: {
+					name: userName,
+					password: "",
+					group: g,
+					personage: [68, 1, 1, 16, 6, 1],
+					map_data: {}
+				}
+			}, function() {
+				processServerData();
+				setTimeout(()=>{
+					selectMenuItem('user:'+uhash);
+				});
+				showLoading(false);
+			}, function(error) {
+				showLoading(false);
+				alert('Ошибка создания: ' + error);
+			});
+		}
+
+		function createNewTurnir() {
+			const newId = uid_gen(); // Генерация ID
+			
+			
+			showLoading(true);
+			clinet_admin_edit({
+				path: 'turnirs;'+newId,
+				method: 'set',
+				obj: 'all_data',
+				value: {
+					"project": "",
+					"owner": "admin",
+					"display_name": "",
+					"freeze_data": {},
+					"time_start": (+new Date())/1000,
+					"time_freeze": (+new Date())/1000+60*60*2,
+					"time_end": (+new Date())/1000+60*60*10,
+					"group": []
+				}
+			}, function() {
+				processServerData();
+				setTimeout(()=>{
+					selectMenuItem('turnir:'+newId);
+				});
+				showLoading(false);
+			}, function(error) {
+				showLoading(false);
+				alert('Ошибка создания: ' + error);
+			});
+		}
+
+		function createNewProject() {
+			let projectName = prompt('Введите название проекта:');
+			if (!projectName) return;
+			projectName = projectName.trim();
+			if (!projectName) return;
+			
+			
+			
+			showLoading(true);
+			const puid = uid_gen();
+			clinet_admin_edit({
+				path: 'projects;'+puid,
+				method: 'set',
+				obj: 'static_data',
+				value: {
+					map: {"Ds": [], "RHs": [], "RVs": [], "ROOMs": []},
+					tasks: [],
+				}
+			}, function() {
+				processServerData();
+				setTimeout(()=>{
+					selectMenuItem('project:'+puid);
+				});
+				showLoading(false);
+			}, function(error) {
+				showLoading(false);
+				alert('Ошибка создания: ' + error);
+			});
+		}
+
+		function createNewTask(project_uid) {
+			let taskName = prompt('Введите название задачи:');
+			if (!taskName) return;
+			taskName = taskName.trim();
+			if (!taskName) return;
+			
+			const project = staticData.projects[project_uid];
+			if (!project) return;
+			
+			const newIndex = project.tasks.length;
+			
+			showLoading(true);
+			clinet_admin_edit({
+				path: `projects;${project_uid};tasks;${newIndex}`,
+				method: 'set',
+				obj: 'static_data',
+				value: {
+					"name":taskName,
+					"condition":"<br/><b>"+taskName+"</b><br/><br/>Необходимо перевести Робота в точку Б",
+					"default_program":"использовать Робот\nалг Миссия \nдано | Условие задачи\nнадо | Привести Робота в точку Б\nнач\r\n\t\r\nкон",
+					"solution":"использовать Робот\r\nалг Миссия \r\nдано | Условие задачи\r\nнадо | Привести Робота в точку Б\r\nнач\r\n\tвправо\r\n\tвправо\r\n\tвправо\r\nкон",
+					"tests":[]
+				}
+			}, function() {
+				processServerData();
+				setTimeout(()=>{
+					selectMenuItem(`tesk:${project_uid}:${newIndex}`);
+				});
+				showLoading(false);
+			}, function(error) {
+				showLoading(false);
+				alert('Ошибка создания: ' + error);
+			});
+		}
+		
+		
+		
+		// Описания редакторов
+		const editorDescriptions = {
+			'user': (uhash) => ({
+				title: 'Редактор пользователя: '+(allData.players[uhash]? allData.players[uhash].name : '-'),
+				description: '<iframe src="../editor/user.html?uhash='+uhash+'" style="width:100%;border:none;" title="description"></iframe>',
+				
+				eventPrefix: 'user',
+				obj: 'all_data',
+				path: 'players;'+uhash,
+				
+				get_additional_data: ()=>({
+					users: JSON.stringify(Object.keys(allData.players).map(x=>allData.players[x].name).filter(x=>x!==(allData.players[uhash] ? allData.players[uhash].name : ''))),
+					groups: JSON.stringify(Object.keys(staticData.group2permissions).filter(x=>x))
+				})
+			}),
+			'turnir': (turnirId) => {
+				const turnir = allData.turnirs[turnirId] || {};
+				return {
+					title: 'Редактор турнира: '+turnir.display_name,
+					description: '<iframe src="../editor/turnir.html?turnir='+turnirId+'" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+					
+					eventPrefix: 'turnir',
+					obj: 'all_data',
+					path: 'turnirs;'+turnirId,
+					get_additional_data: ()=>({
+						users: JSON.stringify(Object.keys(allData.players).map(x=>allData.players[x].name)),
+						groups: JSON.stringify(Object.keys(staticData.group2permissions).filter(x=>x)),
+						projects: JSON.stringify(Object.keys(staticData.projects).map(x=>({uid:x,name:staticData.projects[x].name})))
+					})
+				};
+			},
+			'table-turnir': (turnirId) => {
+				const turnir = allData.turnirs[turnirId] || {};
+				return {
+					title: 'Просмотр рейтинга: '+turnir.display_name,
+					description: '<iframe src="../editor/table-turnir.html?turnir='+turnirId+'" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+					
+					eventPrefix: 'turnirTable',
+					obj: 'all_data',
+					path: 'turnirs;'+turnirId,
+					get_additional_data: ()=>({
+						tuid: JSON.stringify(turnirId),
+						
+						/*JSON.stringify(Object.keys(allData.players).map(x=>({
+							name: allData.players[x].name,
+							map_data: (allData.players[x].map_data[turnirId] || null)
+						}))),*/
+						task_names: JSON.stringify(staticData.projects[allData.turnirs[turnirId].project]?staticData.projects[allData.turnirs[turnirId].project].tasks.map(x=>x.name):[]),
+					})
+				};
+			},
+			
+			'project': (project_uid) => ({
+				title: 'Редактор проекта: '+staticData.projects[project_uid].name,
+				description: '<iframe src="../editor/project.html?project_uid='+project_uid+'" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+				
+				eventPrefix: 'project',
+				obj: 'static_data',
+				path: 'projects;'+project_uid,
+				get_additional_data: ()=>({
+					project_uid: project_uid,
+				})
+			}),
+			'project-map': (project_uid) => ({
+				title: 'Редактор карты: '+staticData.projects[project_uid].name,
+				description: '<iframe src="../editor/map.html?project_uid='+project_uid+'" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+				
+				eventPrefix: 'projMap',
+				obj: 'static_data',
+				path: 'projects;'+project_uid+';map',
+				get_additional_data: ()=>({
+					tasks: JSON.stringify(staticData.projects[project_uid].tasks.map(x=>x.name)),
+				})
+			}),
+			'task': (project_uid, taskIndex) => ({
+				title: 'Редактор задачи: '+staticData.projects[project_uid].tasks[taskIndex].name,
+				description: '<iframe src="../editor/task.html?project_uid='+project_uid+'&taskIndex='+taskIndex+'" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+				
+				eventPrefix: 'task',
+				obj: 'static_data',
+				path: 'projects;'+project_uid+';tasks;'+taskIndex
+			}),
+			'settings': () => ({
+				title: 'Системные настройки',
+				description: '<iframe src="../editor/settings.html" style="height:900px;width:100%;border:none;" title="description"></iframe>',
+				
+				eventPrefix: 'settings',
+				obj: 'static_data',
+				path: 'group2permissions',
+				get_additional_data: ()=>({
+					settings_registration_enabled: JSON.stringify(allData.settings_registration_enabled),
+					all_permissions: JSON.stringify(staticData.api_info.all_permissions),
+					default_group: JSON.stringify(staticData.api_info.default_group),
+					default_admin_group: JSON.stringify(staticData.api_info.default_admin_group),
+				})
+			}),
+			'default': () => ({
+				title: 'Добро пожаловать в административную панель',
+				description: '<p>Используйте левое меню для навигации по разделам данных. При выборе элемента в правой части отобразится редактор или описание необходимого интерфейса для работы с выбранными данными.</p>'
+			})
+		};
+		
+		// Функция для запроса данных с сервера
+		function fetchData() {
+			showLoading(true);
+			/*
+			api_request_map['admin_edit'] = (user, data, resolve, reject) => {
+				var path = data.path;
+				var method = data.method;
+				var obj = (data.obj = 'all_data'? all_data:
+							(data.obj = 'static_data'?static_data:null));
+			*/
+			
+			server_request('admin_edit', {path: '', method: 'get', obj: 'all_data'}, (all_data)=>{
+				server_request('admin_edit', {path: '', method: 'get', obj: 'static_data'}, (static_data)=>{
+					
+					processServerData(all_data, static_data);
+					
+					showLoading(false);
+					//resetUpdateTimer();
+					
+				});
+			});
+		}
+		
+		// Обработка данных с сервера
+		function processServerData(all_data, static_data) {
+		
+			if (all_data) {
+				allData = all_data;
+				staticData = static_data;
+			}
+			
+			// Сохраняем состояние раскрытых разделов
+			saveExpandedState();
+			
+			// Обновляем меню
+			renderMenu();
+			
+			// Восстанавливаем состояние
+			restoreExpandedState();
+			
+			// Обновляем редактор, если был выбран элемент
+			if (uiState.currentPath) {
+				setTimeout(()=>{
+					selectMenuItem(uiState.currentPath, false);
+				});
+			}
+			
+			if (all_data) {
+				// Обновляем статус
+				updateStatusMessage('Данные успешно загружены');
+			}
+		}
+		
+		
+		// Рендер меню на основе текущих данных
+		function renderMenu() {
+			const menuItems = document.getElementById('menu-items');
+			menuItems.innerHTML = '';
+			
+			// Раздел: Пользователи
+			const playersSection = createMenuSection('Пользователи', 'users', 'fas fa-users', () => {
+				const groups = Object.values(allData.players).map(x=>x.group).filter((x, i, a) => a.indexOf(x) == i);
+				if (groups.length === 0) return [createMenuItem('Нет пользователей', 'empty')];
+				
+				return groups.map((group) => {
+					const groupSection = createMenuSection(group, 'group:'+group, 'fas fa-group', () => {
+						const players = Object.keys(allData.players).filter(x=>allData.players[x].group==group);
+						
+						return players.map(x=>createMenuItem(
+								allData.players[x].name+' ',
+								'user:'+x,
+								'fas fa-user',
+								undefined, //allData.players[x].group,
+								true
+							));
+					}, true, true, ()=>createNewUser(group)); // Сворачиваем по умолчанию
+					
+					return groupSection;
+				});
+			}, true);
+			
+			// Раздел: Турниры
+			const turnirsSection = createMenuSection('Турниры', 'turnirs', 'fas fa-trophy', () => {
+				const turnirs = Object.keys(allData.turnirs).sort((x,y)=>x==y?0:(x<y?-1:1)).map(x=>[x,allData.turnirs[x]]);
+				if (turnirs.length === 0) return [createMenuItem('Нет турниров', 'empty')];
+				
+				return turnirs.map(([id, turnir]) => {
+					return createMenuItem(
+						turnir.display_name, 
+						'turnir:'+id, 
+						'fas fa-chess-board',
+						undefined,
+						true
+					);
+				});
+			}, true, true, createNewTurnir);
+			
+			function GetExcelColumnName(number)
+			{
+				var colName = '',
+					dividend = Math.floor(Math.abs(number)),
+					rest;
+				while (dividend > 0) {
+					rest = (dividend - 1) % 26;
+					colName = String.fromCharCode(65 + rest) + colName;
+					dividend = parseInt((dividend - rest)/26);
+				}
+				return colName;
+			}
+			
+			// Раздел: Проекты
+			const projectsSection = createMenuSection('Проекты', 'projects', 'fas fa-project-diagram', () => {
+				const projects = Object.keys(staticData.projects).sort((x,y)=>x==y?0:(x<y?-1:1)).map(x=>[x,staticData.projects[x]]);
+				if (projects.length === 0) return [createMenuItem('Нет проектов', 'empty')];
+				
+				return projects.map(([project_uid, project]) => {
+					const projectSection = createMenuSection(project.name, 'project:'+project_uid, 'fas fa-folder', () => {
+						const items = [];
+						
+						// Карта проекта
+						items.push(createMenuItem('Настройки', 'project:'+project_uid, 'fas fa-cog', undefined, true));
+						items.push(createMenuItem('Карта', 'project-map:'+project_uid, 'fas fa-map'));
+						
+						// Задачи проекта
+						const tasksSection = createMenuSection('Задачи', 'tasks:'+project_uid, 'fas fa-tasks', () => {
+							if (!project.tasks || project.tasks.length === 0) {
+								return [createMenuItem('Нет задач', 'empty')];
+							}
+							
+							return project.tasks.map((task, index) => {
+								return createMenuItem(
+									GetExcelColumnName(index+1)+'. '+task.name, 
+									'task:'+project_uid+':'+index, 
+									'fas fa-code',
+									undefined,
+									true
+								);
+							});
+						}, true, true, () => createNewTask(project_uid));
+						
+						items.push(tasksSection);
+						return items;
+					}, true); // Сворачиваем по умолчанию
+					
+					return projectSection;
+				});
+			}, true, true, createNewProject);
+			
+			// Раздел: Настройки
+			const settingsItem = createMenuItem('Настройки', 'settings', 'fas fa-cog');
+			
+			// Собираем меню
+			menuItems.appendChild(playersSection);
+			menuItems.appendChild(turnirsSection);
+			menuItems.appendChild(projectsSection);
+			menuItems.appendChild(settingsItem);
+			
+			// Вешаем обработчики
+			attachMenuHandlers();
+		}
+		
+		// Создание секции меню
+		function createMenuSection(title, id, icon, contentGenerator, collapsedByDefault = true, addButton = false, addButtonCallback = null) {
+			const section = document.createElement('div');
+			section.className = 'menu-category ' + (collapsedByDefault ? '' : 'expanded');
+			section.dataset.id = id;
+
+			const header = document.createElement('div');
+			header.className = 'menu-category-header';
+			
+			// Добавляем кнопку "+" если нужно
+			const addButtonHTML = addButton ? 
+				'<button class="add-button" title="Добавить"><i class="fas fa-plus"></i></button>' : 
+				'';
+			
+			header.innerHTML = '<i class="${icon}"></i> '+title+' '+addButtonHTML;
+
+			const content = document.createElement('div');
+			content.className = 'menu-category-content';
+
+			if (contentGenerator) {
+				const items = contentGenerator();
+				items.forEach(item => content.appendChild(item));
+			}
+
+			section.appendChild(header);
+			section.appendChild(content);
+
+			// Добавляем обработчик для кнопки
+			if (addButton && addButtonCallback) {
+				const btn = header.querySelector('.add-button');
+				btn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					addButtonCallback();
+				});
+			}
+
+			return section;
+		}
+		
+		// Создание элемента меню
+		function removeMenuItem(path) {
+			console.log(path);
+			let obj = '';
+			let spath = '';
+			if (/^user:.*$/.test(path)) {
+				obj = 'all_data';
+				spath = 'players;'+path.split(':')[1];
+			} else if (/^turnir:.*$/.test(path)) {
+				obj = 'all_data';
+				spath = 'turnirs;'+path.split(':')[1];
+			} else if (/^project:.*$/.test(path)) {
+				obj = 'static_data';
+				spath = 'projects;'+path.split(':')[1];
+			} else if (/^task:.*:.*$/.test(path)) {
+				obj = 'static_data';
+				spath = 'projects;'+path.split(':')[1]+';tasks;'+path.split(':')[2];
+			}
+			
+			if (obj && spath && confirm("Уверены?"))
+				clinet_admin_edit(
+					{path: spath, method: 'delete', obj}, 
+					(d)=> {
+						fetchData();
+						if (editorContent && editorContent.__path == path) showEditor("");
+					}, 
+					(d)=>alert(d)
+				);
+			
+			
+		}
+		function createMenuItem(title, path, icon, group, removeButton = false) {
+			const item = document.createElement('div');
+			item.className = 'menu-item';
+			item.dataset.path = path;
+			
+			const removeButtonHTML = removeButton ? 
+				'<button class="remove-button" title="Удалить"><i class="fas fa-trash"></i></button>' : 
+				'';
+			
+			const groupTag = group ? '<span class="group-tag">'+group+'</span>' : '';
+			item.innerHTML = '<i class="'+(icon || 'fas fa-file')+'"></i> '+title+' '+groupTag+' '+removeButtonHTML;
+			
+			if (removeButton) {
+				const btn = item.querySelector('.remove-button');
+				btn.addEventListener('click', function(e) {
+					e.stopPropagation();
+					btn.disabled=true;
+					removeMenuItem(path);
+					//addButtonCallback();
+				});
+			}
+			
+			return item;
+		}
+		
+		// Прикрепление обработчиков событий к меню
+		function attachMenuHandlers() {
+			// Обработчики для заголовков категорий
+			document.querySelectorAll('.menu-category-header').forEach(header => {
+				header.addEventListener('click', function() {
+					const category = this.parentElement;
+					category.classList.toggle('expanded');
+					
+					// Сохраняем состояние раскрытия
+					if (category.dataset.id) {
+						if (category.classList.contains('expanded')) {
+							uiState.expandedSections.add(category.dataset.id);
+						} else {
+							uiState.expandedSections.delete(category.dataset.id);
+						}
+					}
+				});
+			});
+			
+			// Обработчики для пунктов меню
+			document.querySelectorAll('.menu-item').forEach(item => {
+				item.addEventListener('click', function() {
+					selectMenuItem(this.dataset.path);
+				});
+			});
+		}
+		
+		function openTurnirTable() {
+			openPathInEditor('table-'+uiState.currentPath);
+		}
+		
+		function openPathInEditor(path){
+			uiState.currentPath = path;
+			showEditor(path);
+		}
+		
+		// Выбор пункта меню
+		function selectMenuItem(path, saveSelection = true) {
+			// Сбрасываем предыдущее выделение
+			document.querySelectorAll('.menu-item.active').forEach(i => {
+				i.classList.remove('active');
+			});
+			
+			// Устанавливаем новое выделение
+			const item = document.querySelector('.menu-item[data-path="'+path+'"]');
+			if (item) {
+				item.classList.add('active');
+				if (saveSelection) {
+					openPathInEditor(path);
+				}
+			}
+		}
+		
+		let editorContent;
+		// Отображение редактора
+		function showEditor(path) {
+			editorContent = editorDescriptions.default();
+			
+			const parts = path.split(':');
+			const type = parts[0];
+			
+			switch (type) {
+				case 'user':
+					const playerName = parts[1];
+					editorContent = editorDescriptions.user(playerName);
+					break;
+					
+				case 'turnir':
+					const turnirId = parts[1];
+					editorContent = editorDescriptions.turnir(turnirId);
+					break;
+					
+				case 'table-turnir':
+					const turnirId_2 = parts[1];
+					editorContent = editorDescriptions['table-turnir'](turnirId_2);
+					break;
+					
+				case 'project':
+					const project_uid_1 = parts[1];
+					editorContent = editorDescriptions['project'](project_uid_1);
+					break;
+					
+				case 'project-map':
+					const project_uid_2 = parts[1];
+					editorContent = editorDescriptions['project-map'](project_uid_2);
+					break;
+					
+				case 'task':
+					const project = parts[1];
+					const taskIndex = parseInt(parts[2]);
+					const task = staticData.projects[project]?.tasks[taskIndex];
+					if (task) {
+						editorContent = editorDescriptions.task(project, taskIndex);
+					}
+					break;
+					
+				case 'settings':
+					editorContent = editorDescriptions.settings();
+					break;
+			}
+			
+			editorContent.__path = path;
+			
+			// Обновляем интерфейс
+			document.getElementById('editor-title').textContent = editorContent.title;
+			document.getElementById('editor-path').textContent = path;
+			document.getElementById('editor-description').innerHTML = '	<h3>'+editorContent.title+'</h3><div>'+editorContent.description+'</div>';
+		}
+		
+		// Сохранение состояния раскрытых разделов
+		function saveExpandedState() {
+			uiState.expandedSections = new Set();
+			document.querySelectorAll('.menu-category.expanded').forEach(category => {
+				if (category.dataset.id) {
+					uiState.expandedSections.add(category.dataset.id);
+				}
+			});
+		}
+		
+		// Восстановление состояния раскрытых разделов
+		function restoreExpandedState() {
+			document.querySelectorAll('.menu-category').forEach(category => {
+				if (category.dataset.id && uiState.expandedSections.has(category.dataset.id)) {
+					category.classList.add('expanded');
+				} else {
+					category.classList.remove('expanded');
+				}
+			});
+		}
+		
+		// Отображение индикатора загрузки
+		function showLoading(show) {
+			const indicator = document.getElementById('loading-indicator');
+			indicator.style.display = show ? 'block' : 'none';
+		}
+
+		let fadeTimeout = null;
+		function updateStatusMessage(message) {
+			const statusElement = document.getElementById('status-message');
+			
+			// Очищаем предыдущий таймер, если он есть
+			if (fadeTimeout) {
+				clearTimeout(fadeTimeout);
+				fadeTimeout = 0;
+				statusElement.style.transition = 'none';
+			}else {
+				statusElement.style.transition = 'opacity 0.3s ease-in-out';
+			}
+			
+			statusElement.style.opacity = '1';
+			statusElement.textContent = message;
+			
+			// Даем время для обновления DOM
+			setTimeout(() => {
+				// Устанавливаем плавное исчезание через 1 секунду
+				statusElement.style.transition = 'opacity 1s ease-in-out';
+				if (fadeTimeout) {
+					clearTimeout(fadeTimeout);
+					fadeTimeout = 0;
+				}
+				fadeTimeout = setTimeout(() => {
+					statusElement.style.opacity = '0';
+					fadeTimeout = null;
+				}, 1000); // Ждем 1 секунду перед началом исчезания
+				
+			}, 300);
+		}
+		
+		// Сброс таймера обновления
+		function resetUpdateTimer() {
+			/*if (uiState.updateTimer) {
+				clearInterval(uiState.updateTimer);
+			}
+			
+			uiState.updateCounter = 1;
+			document.getElementById('update-timer').textContent = 'Обновлено!'//uiState.updateCounter;
+			
+			uiState.updateTimer = setInterval(() => {
+				uiState.updateCounter--;
+				document.getElementById('update-timer').textContent = '';
+			}, 1000);*/
+		}
+		
+		var is_first = true;
+		var last_data = '';
+		var clinet_admin_edit = (data, resolve, reject) => {
+		
+				var path = data.path;
+				var method = data.method;
+				var obj = (data.obj == 'all_data'? allData:
+							(data.obj == 'static_data'?staticData:null));
+				
+				if (method=='set' || method=='delete') {
+					server_request('admin_edit', data, (is_ok)=>{
+						if (is_ok!='OK') return reject('setver not ok');
+						var value = method=='delete'?undefined:data.value;
+						var parts = path.split(';');
+						var current = obj;
+						for (var i = 0; i < parts.length - 1; i++) {
+							var key = parts[i];
+							if (current[key] === undefined) {
+								return reject('current[key] === undefined');
+							} else if (
+								current[key] === null || 
+								(typeof current[key] !== 'object')
+							) {
+								return reject('current[key] === null');
+							}
+							current = current[key];
+						}
+						
+						var lastKey = parts[parts.length - 1];
+						if (method=='delete') {
+							if (Array.isArray(current)) current.splice(+lastKey,1);
+							else delete current[lastKey];
+						} else current[lastKey] = value;
+						
+						return resolve('OK');
+					}, reject);
+				} else if (method=='get') {
+					if (path)
+						for (var i=0, path=path.split(';'), len=path.length; i<len; i++){
+							obj = obj[path[i]];
+						}
+					return resolve(obj);
+				}
+		}
+		
+		let timer_all_data = 0;
+		
+		window.addEventListener('message', function(event) {
+			const iframe = document.querySelector('iframe');
+			if (iframe) {
+				if (event.data.type && event.data.type.startsWith(editorContent.eventPrefix)) {
+					
+					let ed_event = event.data.type.split(editorContent.eventPrefix)[1];
+					if (ed_event == 'SetHeight') {
+						iframe.style.height = (JSON.parse(event.data.value) || document.getElementsByClassName('editor-content')[0].clientHeight-40-40-40-27) + 'px';
+						return;
+					}
+					
+					if (ed_event == 'Init') {
+						clinet_admin_edit(
+							{path: editorContent.path, method: 'get', obj: editorContent.obj}, 
+							(d)=> {
+								iframe.contentWindow.postMessage({
+									type: editorContent.eventPrefix+"SetData",
+									value: JSON.stringify(d),
+									update_data: JSON.stringify({path: editorContent.path, method: 'get', obj: editorContent.obj}),
+									additional: editorContent.get_additional_data && editorContent.get_additional_data()
+								}, '*');
+							}, 
+							(d)=>alert(d)
+						);
+						return;
+					}
+					if (ed_event == 'PreSetValue') {
+						updateStatusMessage('Ожидание ввода...');
+					}
+					if (ed_event == 'SetValue') {
+						clinet_admin_edit(
+							{path: editorContent.path, method: 'set', obj: editorContent.obj, value: JSON.parse(event.data.value)},
+							(e)=>{
+								updateStatusMessage('Обновлено!');
+								processServerData();
+								if (timer_all_data) clearInterval(timer_all_data);
+								timer_all_data = setTimeout(()=>{
+									fetchData();
+								}, 60000);
+								console.log(e);
+							},
+							(d)=>alert(d)
+						);
+						return;
+					}
+					
+					if (ed_event === 'Full') {
+						var elem = iframe;
+						if (editorContent.is_first===undefined) editorContent.is_first = true;
+						
+						if (editorContent.is_first) {
+							if (elem.requestFullscreen) {
+								elem.requestFullscreen();
+							} else if (elem.mozRequestFullScreen) { /* Firefox */
+								elem.mozRequestFullScreen();
+							} else if (elem.webkitRequestFullscreen) { /* Chrome, Safari и Opera */
+								elem.webkitRequestFullscreen();
+							} else if (elem.msRequestFullscreen) { /* IE/Edge */
+								elem.msRequestFullscreen();
+							}
+						} else {
+							if (document.exitFullscreen) {
+								document.exitFullscreen();
+							} else if (document.mozCancelFullScreen) { /* Firefox */
+								document.mozCancelFullScreen();
+							} else if (document.webkitExitFullscreen) { /* Chrome, Safari и Opera */
+								document.webkitExitFullscreen();
+							} else if (document.msExitFullscreen) { /* IE/Edge */
+								document.msExitFullscreen();
+							}
+						}
+						
+						editorContent.is_first = !editorContent.is_first;
+						return;
+					}
+				
+					
+					
+					
+				}
+			}
+		});
+		
+		// Инициализация приложения
+		function init() {
+			// Первоначальная загрузка данных
+			fetchData();
+			close_loader();
+		}
+	</script>
+</body>
+</html>

@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=9"> 
+	<meta name="viewport" content="width=1024">
+	<meta name="Description" CONTENT="Вебкумир">
+	<title>WebKumir</title>
+	<script type="text/javascript">
+		var list_file=['TrackBar/winclassic.css','lib/codemirror.css','lib/show-hint.css','lib/lint.css','js/index.css','trackbar/slider.js','split/line.js','lib/codemirror.js','lib/show-hint.js','lib/lint.js','lib/match-highlighter.js','js/kumir.js'];
+		var list_file_after=['js/js.js'];
+		var frontend_demo=(location.href.includes(':8081')||location.href.includes('.github.io'));
+		
+		if (frontend_demo) {
+			list_file.unshift('public_server/api.js');
+			list_file.unshift('public_server/frontend_demo.js');
+			list_file.unshift('js/kumir.js');
+		}
+		
+		function onLoadScripts()
+		{
+			MySlider = new Slider(document.getElementById("slider-1"),document.getElementById("slider-input-1"),"vertical");
+			MySlider.setMaximum(7000);
+			MySlider.setMinimum(-700);
+			MySlider.setValue(350);
+			MyOnLoad();
+		}
+	</script>
+	<script type="text/javascript" src="js/loader.js"></script>
+	
+	
+	<!-- IE -->
+	<link rel="shortcut icon" type="image/x-icon" href="tileset/favicon.ico" />
+	<!-- other browsers -->
+	<link rel="icon" type="image/x-icon" href="tileset/favicon.ico" />
+	
+	<style type="text/css">
+		html, body {
+			font-family: 'Open Sans', sans-serif;
+			height: 100%;
+			margin:0;
+		}
+		.panes-container {
+			width: 100%;
+			overflow: hidden;
+			position: absolute;
+		}
+		.cm-matchhighlight {background-color: rgb(215 212 240 / 60%);}
+		.cm-s-tomorrow-night-bright .cm-matchhighlight {background-color: rgb(163 157 221 / 20%);}
+		.cm-s-tomorrow-night-bright .CodeMirror-lint-mark-error {background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAPCAYAAAAlH6X5AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABBSURBVBhXDcQhAQAgDEXBn4NWJCAACaZJgESg0Wg0Gr004504hTQU7knxHt1L59DetBbNSb1Ta2RGtVIplDNJ4wM4lCEAm5JEkQAAAABJRU5ErkJggg==");}
+
+		#myVideo {
+		  position: fixed;
+		  right: 0;
+		  bottom: 0;
+		  min-width: 100%;
+		  min-height: 100%;
+		}
+
+		/* Add some content at the bottom of the video/page */
+		.content {
+		  position: fixed;
+		  bottom: 0;
+		  background: rgba(0, 0, 0, 0.5);
+		  color: #f1f1f1;
+		  width: 100%;
+		  padding: 20px;
+		}
+
+		/* Style the button used to pause/play the video */
+		#myBtn {
+		  width: 200px;
+		  font-size: 18px;
+		  padding: 10px;
+		  border: none;
+		  background: #000;
+		  color: #fff;
+		  cursor: pointer;
+		}
+
+		#myBtn:hover {
+		  background: #ddd;
+		  color: black;
+		}
+	
+	</style>
+</head>
+
+<body style="overflow: hidden;">
+	<header>
+	</header>
+	<div class="load_div" id="load_div_id" style="width: 100%;height: 100%;background:  #341a3a;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 400; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;position: absolute;top: 50%;left: 50%;margin: -20px 0 0 -150px;width:300px;height:40px;" id="loading_text">Загрузка... (DOM)</h1>
+	</div>
+	
+	<!--<div id="load_vid_id" style="display: none;width: 100%;height: 100%;background:  #341a3a;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 399; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		
+		<video id="myVideo" loop="">
+			<source src="tileset\postvideo.mp4" type="video/mp4">
+			Your browser does not support HTML5 video.
+		</video>
+	</div>-->
+	<div id="programm_view_div" style="top: 5%;bottom: 5%;left: 5%;right: 5%;position: absolute;background: rgb(52, 26, 58);z-index: 49;overflow: auto;display: none;">
+		<pre id="programm_view_pre" style="color: #fff;letter-spacing:0px;margin: 10px 1% 10px 1%;font-size: 16px;border: 3px solid rgba(157,157,157,.4);padding: 5px;background: rgba(127,127,127,.4); border-radius: 10px;  overflow-x: auto;"></pre>
+		<img alt="Закрыть" title="Закрыть" unselectable="on" onclick="setTimeout(function f(){document.getElementById('programm_view_div').style.opacity='.9';},50);setTimeout(function f(){document.getElementById('programm_view_div').style.opacity='.7';},100);setTimeout(function f(){document.getElementById('programm_view_div').style.opacity='.5';},150);	setTimeout(function f(){document.getElementById('programm_view_div').style.opacity='.2';},200);setTimeout(function f(){document.getElementById('programm_view_div').style.display='none';},250);" style="position: absolute;top: 10px;right: 10px;" src="tileset/Close2.png" width="30" height="30"/>
+	</div>
+
+
+	<div id="helper_div" style="top: 5%;bottom: 5%;left: 5%;right: 5%;position: absolute;background: rgb(52, 26, 58);z-index: 49;overflow: auto;display: none;">
+		<h1 style="color: #fff;letter-spacing:0px;text-align:center;width: 100%;height: 20px;">Информация</h1>
+		<h2 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 45px;width: 700px;height: 30px;">Горячии клавиши</h2>
+		
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 60px;width: 700px;height: 25px;">Работа с текстом:</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + C (с) - копировать выделенный текст в буфер обмена</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + V (м) - вставить текст из буфер обмена на место курсора</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + X (ч) - вырезать выделенный текст в буфер обмена</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + Z (я) - отменить последнее действие</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + Y (н) - отменить отмену</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Ctrl + A (ф) - выделить всё</h3>
+		
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 60px;width: 700px;height: 25px;">Для программирования:</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc + стрелка вверх - вставляет команду "вверх"</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc + стрелка вправо - вставляет команду "вправо"</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc + стрелка вниз - вставляет команду "вниз"</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc + стрелка влево - вставляет команду "влево"</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc + пробел - вставляет команду "закрасить"</h3>
+		
+		<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 75px;width: 700px;height: 25px;">Shift + F9 - быстрое выполнение (без анимации)</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">F9 - обычное выполнение (с анимацией)</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Esc - остановить выполнение</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">F2 - шаг (выполнить одну команду)</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">F4 - выполнить до курсора</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">F8 - форматировать код</h3>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 700px;height: 25px;">Tab - добавляет отступ для выделеного текста</h3>
+		
+		<h2 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 45px;width: 700px;height: 30px;">Примеры программ на WebКумир</h2>
+		<table border="0" style="background: rgba(0,0,0,0);">
+			<tr style="background: rgba(0,0,0,0);">
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Пустая программа:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	
+кон
+</pre>
+				</td>
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Линейный алгоритм:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия 
+нач
+	вправо
+	закрасить
+	вниз
+	закрасить
+	влево
+	закрасить
+	вверх
+	закрасить
+кон
+</pre>
+				</td>
+			</tr>
+			<tr style="background: rgba(0,0,0,0);">
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Цикл n раз:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия 
+нач
+	нц 40 раз
+		вправо
+		закрасить
+	кц
+кон
+</pre>
+				</td>
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Цикл пока:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия 
+нач
+	нц пока справа свободно
+		вправо
+		закрасить
+	кц
+кон
+</pre>
+				</td>
+			</tr>
+			<tr style="background: rgba(0,0,0,0);">
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Условия:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	нц 5 раз
+		если снизу свободно то
+			вниз
+			закрасить
+			вверх
+		всё
+		вправо
+	кц
+кон
+</pre>
+				</td>
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Вложенные циклы:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	нц 14 раз
+		нц 14 раз
+			закрасить
+			вправо
+		кц
+		нц 14 раз
+			влево
+		кц
+		вниз
+	кц
+кон
+</pre>
+				</td>
+			</tr>
+			<tr style="background: rgba(0,0,0,0);">
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Переменные:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	цел tmp=0
+	tmp:=10
+	нц пока tmp>0
+		вправо
+		tmp:=tmp-1
+	кц
+	нц для tmp от 1 до 10 шаг 2
+		влево
+	кц
+кон
+</pre>
+				</td>
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Ввод/вывод:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	цел а,б
+	ввод а,б
+	вывод а+б
+кон
+</pre>
+				</td>
+			</tr>
+			<tr style="background: rgba(0,0,0,0);">
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Вспомогательный алгоритм:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	нц 5 раз
+		ДвойнойШагВправо
+	кц
+кон
+алг ДвойнойШагВправо
+нач
+	вправо
+	вправо
+кон
+</pre>
+				</td>
+				<td style="background: rgba(0,0,0,0);text-align: left;border: 0px;vertical-align: text-top;">
+					<h3 style="color: #fff;letter-spacing:0px;margin: 15px 0px 5px 60px;width: 400px;height: 25px;">Алгоритм с результатами:</h3>
+					<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">использовать Робот
+алг Миссия
+нач
+	вывод гипотенуза из катетов(10,10.1)
+кон
+алг вещ гипотенуза из катетов(вещ а,б)
+нач
+	знач := sqrt(а*а+б*б)
+кон
+</pre>
+				</td>
+			</tr>
+		</table>
+		<h2 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 45px;width: 700px;height: 30px;">Возможности WebКумир</h2>
+		<pre style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 75px;width: 400px;font-size: 16px;">Операторы 'не', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', 'и', 'или';
+Обявление и присваивание в одной строке (цел ц=21,вещ в=0.204,лит л='600',сим с='с',лог ло=да);
+Присваивание (имя:=выражение);
+Циклы:
+  нц
+  |
+  |-->для
+  |   |
+  |   |-->i от i1 до i2
+  |   |
+  |   |-->i от i1 до i2 шаг i3
+  |
+  |-->пока условие
+  |
+  |-->формула раз
+  |
+  |-->тело_цикла
+  ...
+  кц или кц_при
+
+выбор:
+  выбор
+	при условие 1: серия 1
+	при условие 2: серия 2
+	...
+	при условие n: серия n
+	иначе серия n + 1
+  все
+
+  выбор
+	при условие_1: серия_1
+	при условие_2: серия_2
+	...
+	при условие_n: серия_n
+  все    
+
+Условия:  
+  если условие
+	то серия1
+	иначе серия2
+  все
+
+  если условие
+	то серия1
+  все
+
+Команды:
+  выход
+  имя_алгоритма - процедуры
+  имя_алгоритма - процедуры(список_параметров_вызова)
+  вывод имя - 1,...,имя - N
+  ввод имя - 1,...,имя - N
+
+Константы:
+  МЦЕЛ = 2147483647
+  МВЕЩ = 1.7976931348623157e+308
+  да, нет - Логические константы
+  нс - перевод строки
+
+Стандартные функции и процедуры:
+  вправо, вниз, влево, вверх, закрасить;
+  лит цел_в_лит(цел),
+  лит вещ_в_лит(вещ),
+  цел лит_в_цел(лит),
+  вещ лит_в_вещ(лит),
+  цел sign(вещ),
+  вещ sqrt(вещ),
+  вещ abs(вещ),
+  цел iabs(цел),
+  вещ sin(вещ),
+  вещ cos(вещ),
+  вещ tg(вещ),
+  вещ ctg(вещ),
+  вещ arcsin(вещ),
+  вещ arccos(вещ),
+  вещ arctg(вещ),
+  вещ arcctg(вещ),
+  вещ ln(вещ),
+  вещ lg(вещ),
+  вещ exp(вещ),
+  вещ min(вещ, вещ),
+  вещ max(вещ, вещ),
+  цел mod(цел, цел),
+  цел div(цел, цел),
+  цел int(вещ),
+  вещ rnd(вещ),
+  цел длин(лит),
+  цел код(сим),
+  сим символ(цел),
+  цел юникод(сим),
+  сим символ2(цел),
+
+  лог слева_свободно(),
+  лог справа_свободно(),
+  лог сверху_свободно(),
+  лог снизу_свободно(),
+  лог слева_стена(),
+  лог справа_стена(),
+  лог сверху_стена(),
+  лог снизу_стена(),
+  лог клетка_закрашена(),
+  лог клетка_чистая(),
+  вещ температура(),
+  вещ радиация()
+</pre>
+		<h3 style="color: #fff;letter-spacing:0px;margin: 5px 0px 5px 60px;width: 400px;height: 25px;"><a href="/manual.pdf" target="_blank" style="color: #cbcbff;">Более подробно</a></h3>
+	<img alt="Закрыть" title="Закрыть" unselectable="on" onclick="helper_close();" style="position: absolute;top: 10px;right: 10px;" src="tileset/Close2.png" width="30" height="30"/>
+	</div>
+	<div style="
+			height: 0%;
+			width: 0%;
+			position: absolute;
+			margin: 0px 0px 0px 0px;
+			left: 100%; 
+			top: 0px; 
+			z-index: 200;" id="gametilesets" hidden="true">
+		<img id="gametileset" style="
+			height:0%;
+			width:0%;
+			" src="tileset/tiles.png" alt=""/>
+		<div id="gamecanvaspersonages">
+		</div>			
+	</div>			
+	<div style="
+			height: 512px;
+			width: 320px;
+			position: absolute;
+			background-image:  url(tileset/CharacterEditorBackground.png);
+			left: 0px; 
+			top: -1000px; 
+			z-index: 300;" id="CharacterEditor">
+		<canvas id="CharacterEditorCanvas" style="
+				height:	100%;
+				width: 100%;
+				position: absolute;
+				left: 0px; 
+				top: 0px; " height="512" width="320"></canvas>
+	</div>		
+	
+	<div style="
+			height: 100%;
+			width: 100%;
+			position: absolute;
+			margin: 0px 0px 0px 0px;
+			background: rgba(140,135,126,1);
+			left: 0px; 
+			top: 0px; 
+			z-index: 100;" id="AllMap">
+		<div class="OMap-left-pane" id="OMap-left-pane">
+		
+			<canvas id="gamecanvas" style="
+			height:100%;
+			width:100%;
+			" hidden="true"></canvas>
+			
+			<canvas id="gamecanvascopy" style="
+			height:100%;
+			width:100%;
+			"></canvas>
+			<div style="position:absolute;top:0px;left:0px;color: #ffffff;font-size: 12px;word-break: break-all;" id="personage_login">
+			</div>
+			
+		</div>
+		<p style="position:absolute;width: 80px;height: 30px;left: 10px;top: 5px;z-index: 2;color:white;font-size: 8px;margin: 0px;" id="fps_data_map">fps: 30<br>ping: kek</p>
+		<div class="OMap-right-pane" id="OMap-right-pane" style="visibility: hidden;">
+			<div class="OMap-right-bottom-pane" id="OMap-right-bottom-pane" style="visibility: visible;">
+				<button onclick="" style="position: absolute;left: 0px;margin: 10px 10px 10px 10px;height:80px;width:80px;padding-right: 1px;padding-left: 1px;background: rgb(52 26 58);border-color: hsl(289deg 38% 22%);" ><img alt="Открыть редактор" src="tileset/EditorIcon.png" style="vertical-align: middle" width="74" height="74"></button>
+				<button onclick="CharacterEditor_open()" style="position: absolute;left: 0px;margin: 10px 10px 10px 10px;height:80px;width:80px;padding-right: 1px;padding-left: 1px;background: rgb(52 26 58);border-color: hsl(289deg 38% 22%);" ><img alt="Открыть редактор" src="tileset/EditorIcon.png" style="vertical-align: middle" width="74" height="74"></button>
+				<button onclick="Game_Render_Next()" style="position: absolute;left: 100px;margin: 10px 10px 10px 10px;height:80px;width:80px;padding-right: 1px;padding-left: 1px;background: rgb(52 26 58);border-color: hsl(289deg 38% 22%);" ><img alt="Другой рендер" id="GameRenderImage" src="tileset/FlatDesign.png" style="vertical-align: middle" width="74" height="74"></button>
+				<button onclick="open_loader();document.location.href='./select_server.html';" style="position: absolute;left: 200px;margin: 10px 10px 10px 10px;height:80px;width:80px;padding-right: 1px;padding-left: 1px;background: rgb(52 26 58);border-color: hsl(289deg 38% 22%);" ><img alt="Выйти" src="tileset/Close.png" style="vertical-align: middle" width="74" height="74"></button>
+			</div>
+			<div class="OMap-right-top-pane" id="OMap-right-top-pane" style="visibility: visible;top: 3px;right: 3px;background: url(tileset/minimap.png) no-repeat center center;">
+					<canvas id="minimap_canvas" style="margin: 14px;height: 242px;width: 242px;padding-right: 1px;padding-left: 1px;background: rgba(50,32,60,1);"></canvas>
+			</div>
+		</div>
+	</div>
+	
+	<div class="load_div2" id="load_div_id2" style="width: 100%;height: 100%;background:  #FFFFFF;background-size: cover;background-repeat: no-repeat;position: absolute;z-index: 50; margin:0px;top: 0px;left: 0px;right: 0px;bottom: 0px;">
+		<h1 style="color: #000;letter-spacing:0px;text-align:center;position: absolute;top: 50%;left: 50%;margin: -20px 0 0 -150px;width:300px;height:40px;" id="loading_text2">Загрузка...</h1>
+	</div>	
+	
+	<div class="panes-container" id="Body">
+		<div class="left-pane" id="left-pane">
+		
+		
+		
+			<nav class="one" unselectable="on" id="topmenu">
+			  <ul unselectable="on">
+					<li class="oneli"  unselectable="on" onclick="MyСut()">
+					   <img alt="Вырезать (CTRL+X)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAI1SURBVEhLvZQ/buJAFIcRckGHG7otqCiBIyAkukiEU8ABOEAkOkTJEbbIAXKA1EicASEEUghs2A2E9R/svG+YiVjHcewo2ic9eTzv974382bsHBaGoRUEwZU8b+TZF/+hAhmMHHI1A5alQyp45bruYrlcBsfj8a+835Kgw58aWnLIhQELpg6rHdwsFouw2Wz6o9Fos9/vD2mLGDg55MKABVNLzgVms1lYLpdD27ad4XD4mKbIJZwccmHAeldgPp8HlUrF5zVNkTi4TIcwYP1TQIR9+scWjTCpyEdwnjD0OfbParGkhGiRLFoFN5Yy8Q7PDDdGAEEcYDweP8j18ySmYJnhxuKKmAK73e5rK4/aZRHA+Hq9fv4WuDFd5I62mJV3Oh2n0WiEhULBGwwGDwJ30KSCy721xa+5vxd+D8SsHHi0AJpIDgxbY8+mV/tT/EnusCv/E3+1Wvnb7fblsi2AccamRWjQkkMuDM0674pqTHie506n09/dbndTrVYPtVrt0Gq1HovF4lvPWTVuChJDg5YccmHAgql2wpZOp9MTgXq9/seyLK9UKjl4Pp8/GZA+UMe0zBRGY/TkwoAFE7b6D7G1Xq+3QdBut7eTyUQ5YwH4sso1rRAt/b5nzByxqB4GLJiwVQF6yBZlFa4If8mcMsbMEUMjU+ogs+j/T4GkFkW3nFWfeMiMo4eWVU+B2GuKx127rHq5afEf2ocfjhhjPZdKr0yvLvqrwN9/+mLM6ViCPpd7Bd/x/QT6h7xZAAAAAElFTkSuQmCC" width="24" height="24" />
+					   <div unselectable="on" id="rectangle" title="Вырезать (CTRL+X)"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="MyCopy()">
+					   <img alt="Скопировать (CTRL+C)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAFcSURBVEhLrZbNbYNAEIX3QBkcoA8EDfiQYlJAyskdF2CJQkDixiWKb4BgM1+ENxaeUQDxpJHA835g1561m+c5nqbpOo7j1HXd2DSNr+t6U7Vt6/u+//LevzkLEvAu5n1Zlt95nt/TNJ2TJPFbKsuy3xDBx2L3Cpo8eVEU9yiKfBzHqplWmwN4XZ4c86qq1OXQCnN5ewJu+FCsCMu+2P8FPJ6Ka7B3T+DBZ7llTz9DiBaA+d49gQcfHSG8iRlwZE/gwUeHHl8zgNq7J/Dgo+P+34Dne0HYRKNuimZXgP01FGgeQaM1TbIBzSNotKZJNqB5BI3WNMkGNI+g0Zom2YDmETRa0yQb0DyCRmuaZAOaR9BwwdBiMj6m46kBMjMuwzCIbxum46kBchERwgdL2b9KA/Q3awzy8VGxBg0Ipw27NWicOq7X4KDgwDjtwFlDGof+xjwdmSKfrvg459wPXtrLJ5WUpfIAAAAASUVORK5CYII=" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Скопировать (CTRL+C)"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="MyPaste()">
+					   <img alt="Вставить (CTRL+V)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHoSURBVEhLrVbLasJAFI2gGx/4A8HXTwjiyo0/lLW405V0pR/gpuDSpRvB31C0RGgQjSltwcRk0ns0ExurXpUeODh35px7nIC5KhJCCJWo+b7flKT6hbhdr9d2s9k00un0MpPJ6O1227Asy8YZNGcejagGbY/ABvHVdV17s9k4i8XCn8/nB06nU7fRaJjJZNJJpVI7+rQpyG61WtvZbOZJHXmEaZqO53kIfo2EUKGh+XA4tGq1mlUqlUShUPDBXC4nqLFL39zp9Xp6p9N5QwjVXj6fD3Xk8er1+nY0Gn0EIVrQXlFwtdVqta9UKp/xeNxXVfVArHEMZrNZu9/vv3e73SUF2nL/tz6RSPgUQhcxHfSk8yNQ4JrFYlFAOJlMDsQax2AsFhMIwU2oFnL/XI+b4HFdDJDXlc8Vaxzf4rle1myArut+tVoN964RGmgfDtjv96HxFqGBFuuHAghj7N/J8TMBJwED1s8KGLB+VsCA9bMCBqyfFTBg/ayAAetnBQxYPytgwPpZAQPWf0Xw/79kel2Hr1/Uj/Dsdf03wDAMt1wuf8kBIr/NvYQHXkxEjN1IQDAyd4PBYEsh35cacMSwwkTE2MX4jYxMDGgihv4ON7n0CO4hxm7QPDr0gSAk8rflGaLHqbmi/ADdI42eATR8PQAAAABJRU5ErkJggg==" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Вставить (CTRL+V)"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="myCodeMirror.options.extraKeys['Ctrl-Z']()">
+					   <img alt="Отменить последнее действие (CTRL+Z)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJiSURBVEhL7VQ9q+JAFPUjP+AhCoIKYmWxFooIgj/AIoVgJwsWNiKKChaWKxaW1pbKFtu5xRMsX2mjVtoKCoKST190JzGavTfkuca3z2Vhu/XCYTKZe8/J3DMTyyP+g9A0jTqfzzSgBvAar/9dGOTL0+lEYPx2LQLiTzD/BKjB85db4Htch+cno+R9YCLHcepwOOQIIQcoQBEsSsH4HbBCcUmSyGazUdbr9XG73SqHw4HAexnXjTwaaiiD9legwGKx0GKxmNzpdFhDBIv4/X4vj0YjodlsCul0ehuNRsVQKCTF43E+k8lsW63WbjKZiCCmYA1ywWhu85uA3+/XXC6XLgLEZDqd7nK5HO92u4ndbj9h6i0oijp5vd4fxWKRm8/nr6qqopCpzSYBnKJINptlg8GgZLPZzkju8XgITdNMtVoV6vW6VC6XuWQyyb6JI8Lh8OtgMBCPx6PZy1sBA2ccnU6nXKlUuPF4vBNFkRhfeIRRFgSBYPsKhQLncDhkq9V6DgQCB0NEQV4A9ZGALgJ9Z1iWlSAH4wVwfYLQWN2nbrcr+Hw+giKRSGQH7drBGvpI3xPQ8Mva7TYDJuJpeQaYjjAAT9qzoiik1+vxkK+gL6VSiUPjYf3lrgDiSmQPZGYDIXCOIriTfD7PoR/AtZ/NZjxwa7rAarXSEomELvI7wLblfr/PQu/RwJrBfQngwJ3w4JWQSqXYRqPBLZdLbBOv32TYImisNNzJR2AYRoWLtcR8g/cSIIA3/ivwKDzPK2CyCnP04DMu6v8i3MmfYOS9v60QsIatuvxS7uU+4hF/ExbLTzMiymq9rHNgAAAAAElFTkSuQmCC" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Отменить последнее действие (CTRL+Z)"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="myCodeMirror.redo()">
+					   <img alt="Повторить отменённое действие (Ctrl+Y)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJsSURBVEhL7VQ9ayJRFFVjbxIIUWIh2Ek0RUAs/AOihals1kZSSKoIITYWW6itf0JBDGKK9JtWQbHQWlhBEnecGXXU+dCZPdedcaNZl93eA2fem3fvO/fOve+N6YAD/huqqjrBBzCiaZpVX/4MGI/hdEnOmH/dpS5yifmxvsUQLy+XS3G1Wn3HPKKbfoM2gFEYn8E+HKXZbCYOh0N5MBgo7+/vMr1jXSS77kfZujCW5/P5rFarjRiGWVIiuuwvwIEyKIKcIAhyo9EYZ7PZSSwWGwYCAc7r9Qp+v5+n93w+zzebTR6CMvwp0DcSLxQKzPX1tdTr9aD/IYAuXlYURWq325Pb21vO4XCIR0dHK5i1XVqt1tXFxcXi7u6O7Xa7k+l0KpL46emp5HK5tK0AhrgkSWK1Wh17PB4BwqouIobDYeb+/p5Lp9MCjaFQaGS329fByc/n803j8ThL4hR8KwAe1MwiZQ5x3ul0imazWT07O5NSqRTbarXGgAg7lUJBA2We58V6vT5OJpPsycnJWpTy1MdPAaihHMqyzpzE3W73vFKpGPXlwGdy/sBXUHt7e5viaxhDeF+AVzRUSiQSrMViUc/Pz8WnpyceGdMpeYE9Cu4exRfUXMrlcj9sNpvxBXsDaCjDCA1dUM0fHx9Hi8WCMn8hMWzYQBcvQ3y2T5y4FQAbOLxMMpkMe3NzM+p0OhNagzEK5y1g/UGWZbFUKjFXV1fr0/InBoNBrd/vbwJ8AfsoicJxnKw3swjjpiwGsB6hG4pLt6QM95HEkQjdjQiVyEoTikbEnH4BW6UxsOv7N+p++/9FBxzwjzCZfgIqMskX1L+NoAAAAABJRU5ErkJggg==" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Повторить отменённое действие (Ctrl+Y)"></div>
+					</li>
+					<li class="oneli isprog" unselectable="on" onclick="MyFastRun();">
+					   <img alt="Быстрое выполнение (Shift + F9)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAGdSURBVEhL3VW9asJQGFXMIHHpIGRxyBQKvoKLU5YIfYDuurn4AHkAB8HNpYtDwaVDdTGQd3CwY4aAIsRr+pMY83f7fSEXWhCa2mSwHxxyc5JzD/fcmy+l/1FxHDcAA0qpioCxAleO8emzW+RSSfYC0Q1MMCWEBIZhUNM0qe/7JnD3yHtQYRieYPyCHL6fSrMVCEQQGqPRiIqiSFutVmIC3APys9nMnUwme8uyjnBPAE+guctsxAxUVaV4iya4EmaAfK1W8zudjq1p2sF1XR/4A2AK2p9jy2KAfLlcjgVBOPb7fbJer9+DIEhiAz3uWSOZ7FxlNWDgOC5qNpsf4/GY7HY7N4oiXNEzzHM+tt8aMPA8H8iybC8Wi4PjOLia87FdaoDA2Or1utfr9chqtXqF0+eB5ntsfzFgqFQqkSRJznA43G+3WyeN7TExycOAoVqthu1229Z13QITXM3gOgy+RrTZbPKLiG1yt9vNf5PZMZ3P5/ke08I+tLRVeGmreMu1VWCzUxTFXi6X9sXNrsh2XewPBwuExf0yr7xKpU8Q4s2sYs+qkAAAAABJRU5ErkJggg==" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Быстрое выполнение (Shift + F9)"></div>
+					</li>
+					<li class="oneli isprog" unselectable="on" onclick="MyRun()">
+					   <img alt="Обычное выполнение (F9)" unselectable="on" id="MyRunImage" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHGSURBVEhL3VU9a8JQFFXMILp0EFwcMknBv+Di5KLQH9BdNxd/QH6Ag+Dm7CC4dKguCgoOjoKDHRwyCIoQX9KPfDQxeb03JNLKqx9VKe2FwyM379yTd97LfYH/EY7jJABlSqnAgvfuFsB5lOMDSDdQoEEIsURRpPP5nOq67o6yLFPDMDYQ7zDnCXCP8z3qcQEEHohitVqlPM/TdDpNR6ORO2Ku1Wpp9Xp9LUmSDvMI4AE4d0cL+QKCIFB8RJHhcLgVwHw0GjXz+bzS6/VkTdNMmC8DGsA9bBtLYDabbS3y88Fg0InH43qpVCLT6fTVsizXNuDjHiXcYqxgCYzHY/frB4PBVsAHx3F2KpV6q9VqZLVaabZt44oeoQ7bNpZAv993R8ztCviIRCJWNptVOp2OrKoqroZtG0tg3wo+A22LxWJGsVgkk8nk2TRNA2p9tY0lwNqDfQiFQnYymVQrlcp6uVyqnm1NV4QlsHuKdgt+h3A4vMlkMgpYLIEIrqb8OwLnWLRYLA5bdOomFwqF0zb5lGPabrcve0wv8qPtaRWG1ypezmoVrGaXy+WUbrer/LjZYTEsjoUv3a6ve+FgAPF6V+Yfj0DgAwwJrfT5XLbZAAAAAElFTkSuQmCC" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Обычное выполнение (F9)"></div>
+					</li>
+					<li class="oneli isprog" unselectable="on" onclick="AnimTime=1000000000+AnimTime; Init(true);CProg(123);isRun = 0;document.getElementById('programmoutput').value='';">
+					   <img alt="Остановить выполнение (Esc)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAB6SURBVEhL7ZXBCcAgDEU9OIiDZIQO1U09dAsPpj4IeCqCxZaWfPiImrzvyYT/SFVjrXVr637HxoiG7eKilHI0ac55yvTCgGXYLtIpEBFNKU2ZXhiwDNvFIa+gkO2M6YXhAZf2gKE9YGgPGPr9gKXf9RMDZ+3I/KhCOAGRixMWlWqZhwAAAABJRU5ErkJggg==" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Остановить выполнение (Esc)"></div>
+					</li>
+					<li class="oneli isprog" unselectable="on" onclick="MyToNew()">
+					   <img alt="Шаг (F2)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAOHSURBVEhLpVVLS+NgFPVRn6ioFESoUBBhFqOCGzciitv+ANEuBQdXCi5mWaEq4mLcKSgMiIvqahTB7Yi6kBERiogotk1G+5g+0jatTdI0c25MpW3a6jgXTtLc795zvsf9bivIFEUxZDIZC962Qmh+gxr4EQOBSSNiRZjf75cYhpFDoZCYTqcl8gPjHxZB8qEsy6LP54usrKx4BgcHIz09PeLY2Fhgc3OTicVi8f8SQZISCAQ4q9XKNDQ0pODKkBuQW1paeLvd7knCIHADfKHVvgeIfdlaPJSDg4Ngc3NzUiPOQ2dnZ/D8/NyPBAk7GGdZVnG5XGVBMYilVVtUgaWlJamysjI78zwYDAZxbW0tSXGUODQ0pJjN5rKgGIqF2VSBhYWFDAR05ISqqioZZyNQ3FsCJpOJJqT+ppXAXgS2t7e5+vp6sZhAW1tb7Ojo6M97tujk5EQV0Qm43e7w8PCwD7NN55LX1NSI09PTbDQapUp665B/Eml2Na8CSDpEvQtXV1cBi8XCGI3GeHt7+3NXVxc3MzPDeDyeEGLCgBUJJcuUyEoJmAAH7oIQDAa5y8tL39nZme/6+tqfSCRo5iKwg+BWjauolRQg00R2AFcBnBSEt0kNLGNlBfCDepEV+F6Ab8BnGlcDy1hJAY18HGCxTWlBEFLPMFRMirYNfjrcN9tESQEk08xZnucTe3t77qmpqceJiQnv3Nwce3p6+jsFo3HAonGpkwI+wTdPJDQG2EsJRECeRM9hW1tbY8hXbzSVLCopAlFWkiQ66B9IMBKxRnoDf4rjOOq6DL5/FRWg5/Hx8Z+Ojo44EeeC2kd/f3/g9vaWLhrd/a9Z4vv7+/jy8nJocnKS83q9MvGUFFhdXRWqq6vlQgFCbW1tamNjIwZiCTONgZgn4t7e3jjG0li1Mjs7q9hsNvVN3zoB9CIdcRbYqszi4mKa4rAdEs4o2NTUJBSLzUInsL6+zmM2UrHgxsZGfnd3l26zuoKHhwcezS/U19enW0EW6L5KOBymf8N5VcDpdAa6u7uDhS2bOuno6OgjjFpF3hlAKE5C+KOK0BnAHwFyLyldXJNaRah9YX9/nx0YGPDV1dWlSIhmPjIy8nhxceHFfaBSpXZRroqoV5lz8NJaaEALfr67uwtubW1FUbJph8MRenp6CmvkDuC1XSBZdw/Ipw3nW07wId46I38u+b9ZRcVfhVcPM7RsccMAAAAASUVORK5CYII=" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Шаг (F2)"></div>
+					</li>
+					<li class="oneli isprog" unselectable="on" onclick="MyToCurs()">
+					   <img alt="Выполнить до курсора (F4)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALiSURBVEhLrVW/S+tQFFapUsRKdRCECAWXt+joJCi4dujgUGjdBB9ODv4BLSjqZPcOD8HhzSK4CoIib7DwEBe1NB1s7a/YqrVJ0/u+Lyal1qT6qge+nNyT75zvnuTemx6aEMLVaDT88JF2mHGXQezGUEAyC6VVWDab1VKplF4oFNR6va4xDgS7FkHyoa7raiaTKe3s7KRmZmZKk5OT6sLCwn08HpfL5XLlSyJIErlcTllaWpIHBwdfEGowDOjDw8OPm5ubqWcYBK6An+z2MwD39dXiIg4ODvIej+fZLPwG4+Pj+fPz8ywSNLzBSjqdFslksiPIAZdd+w0BzFLr7e21Zv4GLpdL3d3dfSaPibOzs8Ln83UEOeTCIoZANBq1LU709fXp29vbNfI+EpAkiRMy7tkJ7FVgb29Pcbvdqp3AyMhI+ejoKPeZV3RycmKIvBOQZbk4NzeXwWzrrcX7+/vVlZWV9MPDA1fSRx/5mEWtbpoCSDrEeq8lEol7v98vj42NVUZHR6sTExPK6uqqjD1RAKcIhJHguExZzElAAn5jL9Ty+bxycXGROT09zVxeXmafnp44cxXYB9lr1rI1RwGaKbIPJNvwlyR4ySB2MEcBXIxzCIgBv9oQBzaAD88jRwEmc1NYq4O+Wq0a3ho3N00HcxTg5e7uTgSDQTE/Py8WFxcFlqXhOWaczw2yabh3AT8gus44xYENW4H2Ds7OzkQgEDA8x60dWIXNoleapr0oisJTV8b4j60Ak8zk5lrmzE3CMePmczd80Cp8fX1d2draKoRCIQUd6iTbCrQaA20CTQJFOFMUfmThqampysDAQN3r9Yq1tTURiUQMz3FXArzH69CWl5fzQ0NDNYac8KUObm9vH/FjKkxPT7/rwEIsFhPFYpF/w/Wuv8HNzU2FQuFwuMRvgHgJaN2k3LjSd64inlW+FrweLSR/xz5gzHz81vAggBmWrA7obXZyiTwz5T+sp+cfCk04tIkhtpUAAAAASUVORK5CYII=" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Выполнить до курсора (F4)"></div>
+					</li>
+  
+					<li class="oneli isprog" unselectable="on" style="display: none;" onclick="var kek=formating(myCodeMirror.getValue(),document.getElementById('area').value);if (kek!=undefined) myCodeMirror.setValue(kek);">
+					   <img alt="Форматировать код (F8)" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAOGSURBVEhLrVU7SyNRFPYRX4i6pLYTwQcoiIV22liJbOdqpYiVhY1a5yeopVpJkC0tlEVFjZVFENEU0UZIttEkM5lHEmcyk8l+3+SOGzdrCO5+cJh77zn3O/fcc8+Zuo9QLBa/Oo4jFwoFC98050JVAei+wOYQYsO+wDHXhPo9oPBB+mB0pGmaeXl5Gc/lcibnXKdemLogEWQBevn+/j75+PiYwpgHWqBOmJXAzVB+g0Rt2zbPz8+l0dFR5fr6mpHQSZR62tEe425IEJJWVTW3uLiYWllZkTKZzCvXIIcusQexIQKDzN7eXnJkZET1+Xz22NiYsr+/n0QkWeppJ+zXIEYkEkkuLy9LnZ2dpt/vN+jk4eGBkRRcYg/cCIngNPr29naiv79fb2xsLAwPD6s7Ozsv8KtDz5NtIooAJITI7HA4nJifn5fa29vzXV1dJiPBdSVgZwvqEsqvyLIs4/j4WBoaGlKvrq4kXJkNvQtEYum6bpby6fARaLIsZ+fm5iRGwuuCrvKKCOx/SzIM6SSezWZNlxl4fn5+3djYSM7OziZvb28VEGmw/UEnjOTu7u7jJJcDRtOQOA7OEzoe+dLSktLS0mI3NDQ44+Pjys3NjefE4nXha0CCVckJGDAS1kK4nLytrc0aGBjQJiYmVDiy6EREwkOEYM/Eu4+gKugAhszHz/KTd3R05A8ODhJPT0/a5OSkykh4XcwJ9gTE9ur4G3lra6vV3NxsNDU1FWZmZhQ4eWEkdLq+vp5i4mG/CenmfkFViY/Ie3t75a2trRiuJAUnbiS8Lupph31F7OHLYZ28FeM7VCM/PT1NGYaRR33EGAlPXk5O4LXpohijmPYJ2hKwUJXcNE2bX865/ic562R3d/clGAwmkHCvd5UaJAafJsceh3USCoVkVjzbCnuXaJDpT5PTHhJmnbAYWfFsK+xdbJAXFxdx6C2voD5DzkSyTuKi4iW+KjZIdmE8WxaczAgCCNFaXV2VWTg9PT3KyclJLeQsREbPAx6xd7FBsgsjqt85oANJkqypqSmlvr7eQfFIsVhMp5Nq5G7yBDBn74qyC7PVc8w1V4nJGjzmcWfK4OCgjjduwkkKkaRrISe4Rh2ENfC+DjDhP+A7wzo7O1PphJHwumoh9yCckKuykoXCdYJ/sMLrYk5qJa8JZU7yzAkT/9/IPQgnayDk7zCA8fS/kdfV/QI5yPvL2Gu8YAAAAABJRU5ErkJggg==" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Форматировать код (F8)"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="helper_open();" id="helper_button">
+					   <img alt="Помощь" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAJPSURBVEhLtZYxbuJQEIYpEBRQIeiMRIVS5AZAR0mx5d6AC6SkoNgTIHEFFCqa3GLpU4CEBAUSmISNRIjtgPN/j5dsEmHW0sojDXma+f9/5r03tpOKsjAM0/Kr4/F4o7/dc25zV/K0pcUzER0rcC/3Pdlms/Hm8/kBZ42RA2OxjqVHG50I2JLfHQ4Hb7lc7gaDwbbdbruNRuOhWq36OGti5MCAhQM3cjdW/Kd8sdvtvOFw+FCr1Z5yuZyfyWSCYrHoOY7zirMmRg4MWDhw0ThbhOoA2H6n03ELhcJLPp/3m83mn16vtx2Px+50On3GWRMjBwYsHLi2SMvKnkwBR35HFwDVmVcul/f9fn+zWq32OoKjuvpixMiBAQsHrt0Jx3W6E2GZli7nyFbVjREfjUZb3eOLgFz07yAIwsViYZw1MXJgwMKBiwZaaKJNAUbxnsuq1+tPbJmufN/fK35r878QVt44a2I2dwsWDlw00EKTPMdzI/c1EY9cGue6Xq+fPwCnXXa/FyBmc6ZBOHDRQAtNtA2ZmWbsstlswOUp8XeLJ5Ef6vIRYZw1MZszRwwHLhpooUncFHBd18x2qVTymBCBmYRrBDDEogpgYOHARQMtND8K8HTqATJzPplMOJ6Z4hXLNxiEzx0RBhYOXDTQQtNg+IlTYDabhZVKxThrQ7YG9mKBGEd0sQBYOJFHFOOSIwuAYQ3n7CUrEWtMLxT455gm+6DpJ9lXBSZgci+7d1Mgudc1pqaS/eBgtkgyn8zPJmAyH/3PRidyxvA//m1Jpd4AmceFkKb5xGIAAAAASUVORK5CYII=" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Помощь"></div>
+					</li>
+					<li class="oneli" unselectable="on" onclick="Editor_dark_mode=!Editor_dark_mode;Editor_style_update();">
+					   <img alt="Сменить тему" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAMAAADXqc3KAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAByFBMVEUAAABWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltWVltYWF1UVFmMjJCPj5JVVVpTU1ijo6ampqlaWl+GhopdXWKioqWmpqhcXGFbW2BXV1yYmJuIiIudnaCFhYmamp1UVFqNjZChoaRjY2hkZGmrq62/v8HY2NqysrSlpahmZmtiYmefn6JubnO3t7nMzM2Hh4qWlpnx8fH////u7u9wcHRqam6SkpXLy8y5ubuDg4a0tLbw8PDs7O1sbHBZWV61tbeEhIhRUVatrbBycnZSUldTU1lubnKRkZXR0dNgYGWurrCUlJdvb3R7e393d3vJyctjY2eqqqx6en5+foKenqFnZ2ypqau3t7rd3d5ra29nZ2usrK+qqq1oaG2Dg4fOztCxsbN5eX3c3N2BgYWwsLKvr7HPz9CGhol8fICgoKOTk5aOjpJxcXWioqRPT1RQUFV2dnqXTaqoAAAAMHRSTlMAAAQ2hMXq+caGOC2a5+icLwNe3+FicvT1dmPiMJ8FO4vL7v3vzIzrPKEG5DP3ZnqPL9kWAAAAAWJLR0RZmrL0GAAAAAd0SU1FB+UIFhQIDWIYngoAAAG3SURBVCjPTZL5N1tBFMdnHl7sxFa7EPt632MmRJHY91asT2xFKEGL1wWldrFUq6323zV3Xpxjfpm5n885d+Z87xBCCKVUiYiMUm02NTomVhElkUsc4uITILwSk5LDhlJ7Sqpkmia3tHQ7GsEzXkmg1zfo8pCZhYbSFMkZcFcjFxuabBRxsk+Tu5m/buGt7jascnIpUeIBPIyBt517O1hnF7BuD0BePolIANbT28f7BwaHht8MvOUjvgYGagGJFO1Hx8YnJqeMaf+Mb7Zzbt4vLnKQKLxYW3i3aBhLyzzgWlnV8G2FREWhv18zUDB93RfcwJcVEZvgm96tD5aAj9s73l1hnFL0mZ8+W4J9+bpn9kshW/FgiyX4/gHn2KqYRKP4dnj0XYjj4Mnp/Nk5ihISI/jF5dVx6NpYvHHfmjN3P+6FKSWxicD2fgLf/fUwOPy79w8H02RQVk6UJJGrDtrf0GPXwb//Lg0rqKgkNDkNYwv4NQxR8wewqqrG2NMzw7ELYcVeUyvnYc+SBljIlBhq6pTwCLNzLGPxqlrleeg0N099/gxlFdUvv0l+gaOwyOksLiktr7T4EzYMdJTm1zccAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDIxLTA4LTIyVDIwOjA3OjM2KzAwOjAwr2RHHgAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyMS0wOC0yMlQyMDowNzozNiswMDowMN45/6IAAAAASUVORK5CYII=" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Сменить тему"></div>
+					</li>
+					<li class="oneli" unselectable="on" id="topmenumax" onclick="CloseEditor()">
+					   <img alt="Вернуться на карту" style="border-radius: 5px;" unselectable="on" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAKqSURBVEhL7ZY9ayJRFIYV/CAK0WCRRERSh43YWabUQIqIpNDOlKnzA7YNSbFdellIu40E8gsSsBCt1CLkAwQhcx0TdudL3fPMjsEFw2aXZbfJhZeZe+7xvDhxnje+/7Km02l8Mpl8EB3J/UfEPTXOvDZ3yT4g9ZRc9+Z6d6l7LT+WFF6Gir6I7h3HMYfDoanrujkej01q3plrhryBbZEyDMN+fHy05XN3st/1Rvt8skmJPovuGSRDjUajoY6Pj1WhUNB2dna009NT1Ww29dFohJlFr9dvDAYD4/LyUjs8PFSlUmnU7/fHGHvjXYMjS1ar1RqenJyofD6vVldXjUAg4MjxFAWDQSeZTBrFYlE7OztT7XZ7JIYjMda2t7f1lZUV0+/3TzY2NqY3Nzcyf86AzcPDwySXy30LhUL28vKylc1mn8rlsh6LxSZof39f39zcfI5Go1Y4HLbX19eNtbU1g345N7e2tp6WlpacVw0ocphIJMa1Wk2J4ddOp2NTQ3Jv3d7ePp+fn6tKpaIYFolEnGq1qur1unZ1dWWk0+nXv8HMYK7Bvc7X5FEqeeaq2+1aDENyby/qlfVHBp/QW3pl/b4Bfeitvd74d4N3g7naX/+Z9no9e+6FsnjJeNkW9S6oLTZg2PX1tXFxcaEdHBwMwQFYAA9gAlyAjdkwcAJWwAuY+aUBwzKZzFM8HjcBGUADbAAO0AE8wDeDIEAEjACSfoAJOF81ALmgFwSDYpAMmkE0qAbZoJuPIZAO2kE8qAf5oF8e5ZE7nIUBIUFYEBqEByFCmEjjLFgswobQIXwIIcKIUCKcCCnpmaUe4ZXyxruBs0vMEXfEnuz5Y7YxlqsbjaKXKGUQMUqcEqvUvLOFuc03ILgJavd3LtqTPUH+U3DL/s3/DPyj5fN9B9AHDOBj1DJGAAAAAElFTkSuQmCC" width="24" height="24"/>
+					   <div unselectable="on" id="rectangle" title="Вернуться на карту"></div>
+					</li>
+				</ul>
+			</nav>
+			<div id="allprogrammdiv" style="width:100%">
+				<div id="programmdiv" style="height: 70%;width:100%">
+					<textarea id="programm"></textarea>
+				</div>
+				<div id="programmdiv2" style="height: 30%;width:100%">
+					<textarea id="programmoutput" style="height: 100%;width:100%;resize: none" readonly="readonly"></textarea>
+				</div>
+			</div>
+		</div>
+		<div class="panes-separator" id="panes-separator"></div>
+		<div class="right-pane" id="right-pane">
+			<div class="tab" id="id_tab">
+			  <button class="tablinks" onclick="SelectIt(event, 'Site', './top.html')" id="defaulttab">Tоп</button>
+			</div>
+			<div id="id_no_tab" style="height:100%;width:100%;">
+			</div>	
+			<div id="id_no_tab_hidden" style="height:100px;width:100px;position: absolute;visibility: hidden;">
+				<div id="id_map" style="height:100%;width:100%;">
+					<div style="height: 158px; width: 37px; position: absolute; margin: 0 auto; z-index: 2; right: 10px; bottom: 10px;">
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 4px;
+								bottom: 129px;
+								border-bottom-left-radius: 2px;
+								border-bottom-right-radius: 2px;
+								border-top-left-radius: 8px;
+								border-top-right-radius: 8px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="MySlider.setValue(MySlider.getValue() + 100);">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 7.452px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">+</a>
+						</div>
+						<div style="
+								height: 100px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(0,0,0,0);
+								right: 4px;
+								bottom: 29px;">
+							<div onload="someFunction()" class="slider" id="slider-1" tabIndex="1"><input class="slider-input" id="slider-input-1" name="slider-input-1"/></div>
+						</div>
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 4px;
+								bottom: 0px;
+								border-bottom-left-radius: 8px;
+								border-bottom-right-radius: 8px;
+								border-top-left-radius: 2px;
+								border-top-right-radius: 2px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="MySlider.setValue(MySlider.getValue() - 100);">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 10.3px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">-</a>
+						</div>
+					</div>
+					<div style="height: 87px; width: 87px; position: absolute; margin: 0 auto; z-index: 2; left: 10px; bottom: 10px;">
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 29px;
+								bottom: 58px;
+								border-bottom-left-radius: 2px;
+								border-bottom-right-radius: 2px;
+								border-top-left-radius: 8px;
+								border-top-right-radius: 8px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="mapY+=(canvas.clientHeight*0.5); Sizeing();">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 7.452px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">∧</a>
+						</div>
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 0px;
+								bottom: 29px;
+								border-bottom-left-radius: 2px;
+								border-bottom-right-radius: 8px;
+								border-top-left-radius: 2px;
+								border-top-right-radius: 8px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="mapX-=(canvas.clientWidth*0.5); Sizeing();">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 7.452px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">&gt;</a>
+						</div>
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 29px;
+								bottom: 0px;
+								border-bottom-left-radius: 8px;
+								border-bottom-right-radius: 8px;
+								border-top-left-radius: 2px;
+								border-top-right-radius: 2px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="mapY-=(canvas.clientHeight*0.5); Sizeing();">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 7.452px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">∨</a>
+						</div>
+						<div style="
+								height: 29px;
+								width: 29px;
+								position: absolute;
+								margin: 0 auto;
+								background: rgba(140,135,126,1);
+								right: 58px;
+								bottom: 29px;
+								border-bottom-left-radius: 8px;
+								border-bottom-right-radius: 2px;
+								border-top-left-radius: 8px;
+								border-top-right-radius: 2px;
+								box-shadow: 0px 1px 4px rgba(0,0,0,0.3);" onclick="mapX+=(canvas.clientWidth*0.5); Sizeing();">
+								<a unselectable="on" style="
+										position: absolute;
+										margin: 0 auto;
+										color: rgba(255,255,255,1);
+										right: 7.452px;
+										bottom: 0.5px;
+										font-size: 25px;
+										-webkit-user-select: none;
+										user-select: none;">&lt;</a>
+						</div>
+					</div>	
+					<canvas id="canvas2" style="height:2px;width:2px;" hidden="true"></canvas>
+					<canvas id="canvas3" style="height:2px;width:2px;" hidden="true"></canvas>
+					<canvas id="canvas" style="height:100%;width:100%;"></canvas>
+					<textarea type="textarea" id="area" style="height:9px;width:9px;z-index: 1;" hidden="true">{"fil":"; Field Size: x, y\n25 7\n; Robot position: x, y\n0 0\n; A set of special Fields: x, y, Wall, Color, Radiation, Temperature, Symbol, Symbol1, Point\n1 0 4 0 0.000000 0.000000 $ $ \n2 0 4 0 0.000000 0.000000 $ $ \n4 0 4 0 0.000000 0.000000 $ $ \n7 0 4 0 0.000000 0.000000 $ $ \n17 0 4 0 0.000000 0.000000 $ $ \n3 1 1 0 0.000000 0.000000 $ $ \n4 1 1 0 0.000000 0.000000 $ $ \n5 1 10 0 0.000000 0.000000 $ $ \n7 1 1 0 0.000000 0.000000 $ $ \n8 1 8 0 0.000000 0.000000 $ $ \n9 1 2 0 0.000000 0.000000 $ $ \n10 1 8 0 0.000000 0.000000 $ $ \n11 1 10 0 0.000000 0.000000 $ $ \n12 1 2 0 0.000000 0.000000 $ $ \n14 1 2 0 0.000000 0.000000 $ $ \n16 1 8 0 0.000000 0.000000 $ $ \n17 1 2 0 0.000000 0.000000 $ $ \n19 1 1 0 0.000000 0.000000 $ $ \n20 1 6 0 0.000000 0.000000 $ $ \n21 1 2 0 0.000000 0.000000 $ $ \n22 1 8 0 0.000000 0.000000 $ $ \n23 1 8 0 0.000000 0.000000 $ $ \n24 1 1 0 0.000000 0.000000 $ $ \n2 2 6 0 0.000000 0.000000 $ $ \n4 2 1 0 0.000000 0.000000 $ $ \n5 2 2 0 0.000000 0.000000 $ $ \n6 2 2 0 0.000000 0.000000 $ $ \n10 2 5 0 0.000000 0.000000 $ $ \n11 2 6 0 0.000000 0.000000 $ $ \n13 2 1 0 0.000000 0.000000 $ $ \n15 2 1 0 0.000000 0.000000 $ $ \n16 2 4 0 0.000000 0.000000 $ $ \n17 2 6 0 0.000000 0.000000 $ $ \n19 2 5 0 0.000000 0.000000 $ $ \n20 2 1 0 0.000000 0.000000 $ $ \n21 2 2 0 0.000000 0.000000 $ $ \n22 2 4 0 0.000000 0.000000 $ $ \n23 2 4 0 0.000000 0.000000 $ $ \n24 2 1 0 0.000000 0.000000 $ $ \n1 3 8 0 0.000000 0.000000 $ $ \n3 3 3 0 0.000000 0.000000 $ $ \n4 3 8 0 0.000000 0.000000 $ $ \n5 3 10 0 0.000000 0.000000 $ $ \n7 3 1 0 0.000000 0.000000 $ $ \n9 3 2 0 0.000000 0.000000 $ $ \n13 3 8 0 0.000000 0.000000 $ $ \n14 3 10 0 0.000000 0.000000 $ $ \n17 3 2 0 0.000000 0.000000 $ $ \n19 3 1 0 0.000000 0.000000 $ $ \n20 3 5 0 0.000000 0.000000 $ $ \n21 3 2 0 0.000000 0.000000 $ $ \n24 3 1 0 0.000000 0.000000 $ $ \n3 4 3 0 0.000000 0.000000 $ $ \n5 4 2 0 0.000000 0.000000 $ $ \n7 4 1 0 0.000000 0.000000 $ $ \n9 4 2 0 0.000000 0.000000 $ $ \n14 4 2 0 0.000000 0.000000 $ $ \n17 4 2 0 0.000000 0.000000 $ $ \n18 4 2 0 0.000000 0.000000 $ $ \n21 4 1 0 0.000000 0.000000 $ $ \n22 4 1 0 0.000000 0.000000 $ $ \n24 4 1 0 0.000000 0.000000 $ $ \n1 5 4 0 0.000000 0.000000 $ $ \n2 5 6 0 0.000000 0.000000 $ $ \n3 5 2 0 0.000000 0.000000 $ $ \n6 5 3 0 0.000000 0.000000 $ $ \n9 5 2 0 0.000000 0.000000 $ $ \n14 5 2 0 0.000000 0.000000 $ $ \n16 5 4 0 0.000000 0.000000 $ $ \n18 5 1 0 0.000000 0.000000 $ $ \n19 5 1 0 0.000000 0.000000 $ $ \n20 5 2 0 0.000000 0.000000 $ $ \n21 5 2 0 0.000000 0.000000 $ $ \n24 5 1 0 0.000000 0.000000 $ $ \n17 6 8 0 0.000000 0.000000 $ $ \n; End Of File\n;input_data_start\n120 321 123\n;input_data_end\n;out_data_start\n321 123\n;out_data_end"}
+					</textarea>
+				</div>
+				<div id="id_file" style="height:100%;width:100%;">
+					<div style="height:3%;width:100%;">
+						<a style="height:3%;width:100%;text-align:center;position: absolute;" target="_blank" href="about:blank">Открыть в новом окне</a>
+					</div>
+					<iframe src="about:blank" id="id_file_src_1" width="100%" height="100%" style="border: none;">
+						<object data="about:blank" id="id_file_src_2" type="application/pdf" width="100%" height="97%">
+						This browser does not support PDFs. Please download the PDF to view it: 
+							<a href="about:blank" id="id_file_src_3">Download PDF</a>
+						</object>
+					</iframe>
+				</div>
+				<div id="id_iframe" style="height:100%;width:100%; ">
+					<iframe src="about:blank" width="100%" height="100%" style="border: none;">
+						This browser does not support iframe. 
+						open <a href="about:blank">site</a>
+					</iframe>
+				</div>
+				<div id="id_text" style="height:100%;width:100%;overflow: auto;">
+					<a style="font-size: 13pt;line-height: 1.3;" id="id_text_text">Download PDF</a>
+				</div>
+				<div id="id_push" style="height:100%;width:100%;overflow: auto;">
+					<p style="font-size: 13pt;">После нажатия этой кнопки программа, находящаяся в редакторе, будет отправлена на сервер для последующей проверки (на доступных и секретных тестах).</p>
+					<input type="button" value="Отправить программу" onclick="SendProgramm();" class="button_for_send_prog" style="margin: 10px;" disabled>
+					<table id="id_push_data" border="0">
+						<tr>
+							<th>Номер</th>
+							<th>Когда</th>
+							<th>Кто</th>
+							<th>Задача</th>
+							<th>Язык</th>
+							<th>Вердикт</th>
+						</tr>
+						<tr>
+							<td>Загрузка</td>
+							<td>Загрузка</td>
+							<td>Загрузка</td>
+							<td>Загрузка</td>
+							<td>Загрузка</td>
+							<td>Загрузка</td>
+						</tr>
+						<!--<tr>
+							<td>2</td>
+							<td>18.01.2021 14:09</td>
+							<td>admin</td>
+							<td>A2</td>
+							<td>Кумир</td>
+							<td style="color: #0a0;">OK</td>
+						</tr>
+						<tr>
+							<td>1</td>
+							<td>18.01.2021 14:09</td>
+							<td>admin</td>
+							<td>A2</td>
+							<td>Кумир</td>
+							<td>Частичное решение: 50%</td>
+						</tr>-->
+					</table>
+				</div>
+			</div>
+		</div>
+	</div>
+	</body>
+</html>

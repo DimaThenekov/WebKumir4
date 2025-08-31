@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Системные настройки</title>
+    <link rel="stylesheet" href="../editor/font-awesome_6-0-0.css">
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+        background: #ffffff;
+        color: #333333;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        max-width: 1200px;
+        margin: 0 auto;
+        gap: 15px;
+    }
+
+    header {
+        text-align: center;
+        padding: 15px;
+        background: rgba(245, 245, 245, 0.9);
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 8px;
+        color: #1976d2;
+    }
+
+    .settings-panel {
+        background: rgba(245, 245, 245, 0.9);
+        border-radius: 12px;
+        padding: 25px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #0d47a1;
+        font-size: 0.95rem;
+    }
+
+    .permissions-table-container {
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    th, td {
+        padding: 10px;
+        text-align: center;
+        border: 1px solid #ddd;
+    }
+
+    th {
+        background-color: #f2f2f2;
+        font-weight: 600;
+    }
+
+    .permission-name {
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .group-header {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .btn {
+        padding: 8px 15px;
+        background: rgba(224, 224, 224, 0.6);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+        background: rgba(200, 200, 200, 0.7);
+        transform: translateY(-2px);
+    }
+
+    .btn-danger {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    .add-group-form {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+        align-items: center;
+    }
+
+    input[type="text"] {
+        padding: 8px 12px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        transition: all 0.2s ease;
+    }
+
+    input[type="text"]:focus {
+        outline: none;
+        border-color: #1976d2;
+        box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+    }
+
+    .error {
+        color: #d32f2f;
+        font-size: 0.85em;
+        margin-top: 6px;
+        padding-left: 5px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="settings-panel">
+            <div class="form-group">
+                <label>Управление группами и разрешениями</label>
+                
+                <div class="permissions-table-container">
+                    <table id="permissions-table">
+                        <thead>
+                            <tr>
+                                <th>Разрешение</th>
+                                <!-- Группы будут добавлены здесь динамически -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Строки разрешений будут добавлены здесь динамически -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="add-group-form">
+                    <input type="text" id="new-group-name" placeholder="Название новой группы">
+                    <button class="btn btn-success" id="add-group-btn">Добавить группу</button>
+                </div>
+                <div id="group-error" class="error"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.settings = {group2permissions:{}};
+        window.all_permissions = [];
+
+        // CODE
+        function initForm() {
+            // Инициализация таблицы разрешений
+            renderPermissionsTable();
+            
+            // Обработчик добавления группы
+            document.getElementById('add-group-btn').addEventListener('click', addNewGroup);
+        }
+        
+        function renderPermissionsTable() {
+            const table = document.getElementById('permissions-table');
+            const thead = table.querySelector('thead tr');
+            const tbody = table.querySelector('tbody');
+            
+            // Очищаем существующие данные, кроме заголовка разрешений
+            while (thead.children.length > 1) {
+                thead.removeChild(thead.lastChild);
+            }
+            tbody.innerHTML = '';
+            
+            // Добавляем заголовки для групп
+            const groups = Object.keys(window.settings.group2permissions || {});
+            groups.forEach(group => {
+                const th = document.createElement('th');
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.className = 'group-header';
+                
+                const groupName = document.createElement('span');
+                groupName.textContent = group === '' ? 'Гость' : group;
+                
+                // Кнопка удаления группы (кроме гостевой)
+                if (group !== '' && group !== window.default_group && group !== window.default_admin_group) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-danger btn-sm';
+                    deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+                    deleteBtn.title = 'Удалить группу';
+                    deleteBtn.addEventListener('click', () => deleteGroup(group));
+                    
+                    groupHeader.appendChild(groupName);
+                    groupHeader.appendChild(deleteBtn);
+                } else {
+                    groupHeader.appendChild(groupName);
+                }
+                
+                th.appendChild(groupHeader);
+                thead.appendChild(th);
+            });
+            
+            // Добавляем строки для каждого разрешения
+            window.all_permissions.forEach(permission => {
+                const row = document.createElement('tr');
+                
+				const translate = ({
+					'LOGIN': 'Вход в аккаунт',
+					'REGISTERING': 'Регистрация',
+					'USER': 'Пользовательские разрешения (получение списка турниров, получение карты, чтение задач, ...)',
+					'SEND_PROGRAM': 'Отправка задач',
+					'ADMIN': 'Административные разрешения (редактирование системных настроек)',
+					'NOT_DISPLAY_ON_TOP': 'Не отображать в рейтинге у пользователей',
+					'ACCESSES_ALL_TASKS': 'Автоматически выдавать доступ к задачам для переключения в рейтинге',
+					'RAINBOW_NICKNAME': 'Разноцветный никнейм',
+					'NOT_GET_COIN': 'Не может подобрать монетки'
+				});
+                // Ячейка с названием разрешения
+                const permissionCell = document.createElement('td');
+                permissionCell.className = 'permission-name';
+				
+                permissionCell.textContent = translate[permission] ? translate[permission] : permission;
+                row.appendChild(permissionCell);
+                
+                // Чекбоксы для каждой группы
+                groups.forEach(group => {
+                    const cell = document.createElement('td');
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    
+                    // Проверяем, есть ли это разрешение у группы
+                    const groupPermissions = window.settings.group2permissions[group] || [];
+                    checkbox.checked = groupPermissions.includes(permission);
+                    
+                    // Обработчик изменения чекбокса
+                    checkbox.addEventListener('change', () => {
+                        if (checkbox.checked) {
+                            // Добавляем разрешение, если его еще нет
+                            if (!groupPermissions.includes(permission)) {
+                                groupPermissions.push(permission);
+                            }
+                        } else {
+                            // Удаляем разрешение
+                            const index = groupPermissions.indexOf(permission);
+                            if (index > -1) {
+                                groupPermissions.splice(index, 1);
+                            }
+                        }
+                        window.settings.group2permissions[group] = groupPermissions;
+                        editorUpdateValue();
+                    });
+                    
+                    cell.appendChild(checkbox);
+                    row.appendChild(cell);
+                });
+                
+                tbody.appendChild(row);
+            });
+            
+            updateIframeHeight();
+        }
+        
+        function addNewGroup() {
+            const groupNameInput = document.getElementById('new-group-name');
+            const groupName = groupNameInput.value.trim();
+            const errorDiv = document.getElementById('group-error');
+            
+            // Валидация
+            if (!groupName) {
+                errorDiv.textContent = 'Введите название группы';
+                return;
+            }
+            
+            if (window.settings.group2permissions && window.settings.group2permissions.hasOwnProperty(groupName)) {
+                errorDiv.textContent = 'Группа с таким названием уже существует';
+                return;
+            }
+            
+            // Очищаем ошибки
+            errorDiv.textContent = '';
+            
+            // Добавляем новую группу
+            if (!window.settings.group2permissions) {
+                window.settings.group2permissions = {};
+            }
+            
+            window.settings.group2permissions[groupName] = window.settings.group2permissions[window.default_group].map(x=>x);
+            
+            // Обновляем таблицу и очищаем поле ввода
+            renderPermissionsTable();
+            groupNameInput.value = '';
+            
+            editorUpdateValue();
+        }
+        
+        function deleteGroup(groupName) {
+            if (confirm(`Вы уверены, что хотите удалить группу "${groupName}"?`)) {
+                delete window.settings.group2permissions[groupName];
+                renderPermissionsTable();
+                editorUpdateValue();
+            }
+        }
+        
+        function validateForm() {
+            // Здесь можно добавить дополнительную валидацию при необходимости
+            return true;
+        }
+
+        const editorPrefix = 'settings';
+        
+        let last_editorUpdateValue = '';
+        let timer_editorUpdateValue = 0;
+        
+        function editorUpdateValue() {
+            let s = JSON.stringify(window.settings);
+            editorPostMessage('PreSetValue');
+                
+            if (s != last_editorUpdateValue) {
+                last_editorUpdateValue = s;
+                if (timer_editorUpdateValue) clearTimeout(timer_editorUpdateValue);
+                timer_editorUpdateValue = setTimeout(() => {
+                    editorPostMessage('SetValue', window.settings.group2permissions);
+                }, 500);
+            }
+        }
+        
+        function editorPostMessage (type, value) {
+            window.parent.postMessage({ type: editorPrefix+type, value: JSON.stringify(value) }, '*');
+        }
+            
+        function updateIframeHeight() {
+            const height = document.getElementsByClassName('container')[0].scrollHeight + 45;
+            editorPostMessage('SetHeight', height);
+        }
+            
+        window.addEventListener('load', () => {
+            if (window.self !== window.top) {
+                window.addEventListener('message', function(event) {
+                    if (event.data.type && event.data.type === editorPrefix+'SetData') {
+                        Object.assign(window.settings.group2permissions, JSON.parse(event.data.value));
+                        
+                        window.all_permissions = JSON.parse(event.data.additional.all_permissions);
+                        window.default_group = JSON.parse(event.data.additional.default_group);
+                        window.default_admin_group = JSON.parse(event.data.additional.default_admin_group);
+                        initForm();
+                        validateForm();
+                    }
+                });
+                    
+                updateIframeHeight();
+                window.addEventListener('resize', updateIframeHeight);
+                editorPostMessage('Init');
+            }
+        });
+    </script>
+</body>
+</html>

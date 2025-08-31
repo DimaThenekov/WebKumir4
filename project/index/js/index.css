@@ -1,0 +1,206 @@
+
+
+.left-pane {
+	width: 49%;
+	background: #ccc;
+}
+
+.panes-separator {
+	width: 16px;
+	background: rgba(240, 240, 240, 1);
+	position: absolute;
+	cursor: col-resize;
+	top: 0px;
+}
+
+.right-pane {
+	top: 0px;
+	width: 49%;
+	background: #eee;
+	position: absolute;
+}
+
+.panes-container,
+.panes-separator,
+.left-pane,
+.right-pane {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+}
+.one ul {
+  list-style: none; 
+  margin: 0 auto;
+}
+.one #rectangle{
+  text-decoration: none;
+  font-family: 'Lora', serif;
+  transition: .5s ease-out;
+}
+nav {
+  display: block;
+  width: 100%;
+  height: 30px;
+  margin: 0 auto 0px;
+}
+.one ul {
+  padding: 1px 0;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+}
+.one img {
+  padding: 1px;
+  height: 24px;
+  width: 24px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  margin-left: 2px;
+  margin-top: 2px;
+  position: relative;
+}
+.one li {
+  display: inline-block;
+  height: 26px;
+  width: 26px;
+}
+.one #rectangle{
+  height: 26px;
+  width: 26px;
+  margin-right: 2px;
+  margin-bottom: 2px;
+  margin-left: 2px;
+  margin-top: 2px;
+  position: relative;
+  background: rgba(204, 232, 255, 0.5);
+    opacity: 0;
+    z-index:1;
+    right: 0px;
+    bottom: 35px;
+    left: 0px;
+	
+	
+    border-top: 1px solid rgba(204, 232, 255, 1);
+    border-bottom: 1px solid rgba(204, 232, 255, 1);
+    border-left: 1px solid rgba(204, 232, 255, 1);
+    border-right: 1px solid rgba(204, 232, 255, 1);
+}
+.one #rectangle:hover {
+    opacity: 1;
+  }
+.oneli:active img{
+    left: 1px;
+    top: 1px;
+    opacity: 0.5;
+}
+#programm{
+  height: 100%;
+  resize: none;
+}
+.one{
+-moz-user-select: none;
+-khtml-user-select: none;
+-webkit-user-select: none;
+user-select: none;
+}
+
+.cm-s-default .cm-atom {color: #090; font-weight: bolder;}
+.cm-s-default .cm-keyword {color: #000090; font-weight: bolder;}
+.cm-s-default .cm-number {color: #00b9cc; font-weight: bolder;} 
+.cm-s-default .cm-string {color: #d47f01; font-weight: bolder;} 
+.cm-s-default .cm-comment {color: #737373; font-weight: bolder;}
+
+#area {
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+.OMap-left-pane {
+    z-index:1;
+	height: 100%;
+	left: 0px;
+    width: 100%;
+	right: 300px;
+    background: #ccc;
+	position: absolute;
+}
+.OMap-right-pane {
+    z-index:2;
+	height: 100%;
+	right: 0px;
+    width: 300px;
+    background: #32203000;
+	position: absolute;
+}
+.OMap-right-bottom-pane {
+	height: 100px;
+    bottom: 0px;
+    width: 100%;
+    background: #322030a0;
+	position: absolute;
+	box-shadow: 0px -5px 5px rgba(0,0,0,0.3)
+}
+.OMap-right-top-pane {
+	height: 270px;
+    width: 270px;
+    top: 0px;
+    right: 0px;
+    background: #322030a0;
+	position: absolute;
+	box-shadow: 0px -5px 5px rgba(0,0,0,0.3)
+}
+
+/* Style the tab */
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+/* Style the buttons inside the tab */
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  transition: 0.3s;
+  font-size: 19px;
+}
+
+/* Change background color of buttons on hover */
+.tab button:hover {
+  background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+.tab button.active {
+  background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+table {
+	width: 100%;
+	font-family: verdana,arial,sans-serif;
+	font-size: 1rem;
+	border-collapse: collapse;
+}
+td, th {
+	text-align: center;
+	background-color: #f8f8f8;
+	border-top: 1px solid #e1e1e1;
+	border-right: 1px solid #e1e1e1;
+	border-left: 1px solid #e1e1e1;
+	border-bottom: 1px solid #e1e1e1;
+	padding: 0.4em;
+	overflow: hidden;
+	max-width: 20em !important;
+}
+
