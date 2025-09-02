@@ -54,7 +54,7 @@ docker build -t web-kumir .
 mkdir data
 
 # Запуск контейнера
-docker run -d -p 80:80 -v $(pwd)/data:/app/project --name webKumir web-kumir
+docker run -d -p 80:80 -v data:/app/project --name webKumir web-kumir
 
 # Для остановки контейнера (добавить в раздел):
 docker stop webKumir
