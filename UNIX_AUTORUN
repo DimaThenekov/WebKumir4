@@ -1,0 +1,48 @@
+#!/bin/bash
+
+NODE_CMD="node"
+LAUNCHER_SCRIPT="launcher_v2.js"
+
+check_node() {
+    if command -v "$NODE_CMD" &> /dev/null; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+install_hint() {
+    echo "Node.js не найден. Пожалуйста, установите Node.js одним из следующих способов:"
+    echo
+    echo "Для Debian/Ubuntu:"
+    echo "  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -"
+    echo "  sudo apt-get install -y nodejs"
+    echo
+    echo "Для Fedora/RHEL:"
+    echo "  curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -"
+    echo "  sudo dnf install -y nodejs"
+    echo
+    echo "Для Arch Linux:"
+    echo "  sudo pacman -S nodejs npm"
+    echo
+    echo "Для openSUSE:"
+    echo "  sudo zypper install nodejs18"
+    echo
+    echo "Для macOS (через Homebrew):"
+    echo "  brew install node"
+    echo
+    echo "Официальный сайт: https://nodejs.org/"
+    exit 1
+}
+
+if ! check_node; then
+    install_hint
+fi
+
+echo "Запуск приложения..."
+while true; do
+    if ! node "$LAUNCHER_SCRIPT"; then
+        echo "Произошла ошибка при выполнении скрипта"
+        read -rp "Нажмите Enter для перезапуска или Ctrl+C для выхода..."
+    fi
+done

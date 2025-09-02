@@ -73,7 +73,7 @@ function downloadJSzip(releaseInfo, callback) {
 	// Скачиваем jszip если нужно
 	if (!fs.existsSync(TMP_DIRECTORY + '/jszip.min.js')) {
 		console.log('[LAUNCHER] JSZip downloading...');
-		downloadFile('https://dimathenekov.github.io/WebKumir4/jszip.min.js', TMP_DIRECTORY + '/jszip.min.js', function(err) {
+		downloadFile('https://dimathenekov.github.io/jszip.min.js', TMP_DIRECTORY + '/jszip.min.js', function(err) {
 			if (err) {
 				console.log('[LAUNCHER] Failed to download JSZip:', err.message);
 				return callback();
