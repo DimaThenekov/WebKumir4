@@ -15,6 +15,8 @@ https://dimathenekov.github.io/WebKumir4/project/index/login.html
 <br/>
 Так же есть возможность регистрации нового пользователя
 
+В демо режиме рейтинг отображает только локальные результаты!
+
 # Административная панель
 Административная панель находится по адресу: <br/>
 Для демо режима: https://dimathenekov.github.io/WebKumir4/project/index/editor/index.html<br/>
