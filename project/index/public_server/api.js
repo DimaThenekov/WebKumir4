@@ -18,7 +18,7 @@ function test_programm(programm, test) {
 	let g = frontend_demo ? window : global;
 	if (!g.$$RunKumir_try){
 		if (!g.RunKumir_try) {
-			eval(require('fs').readFileSync(__dirname+'\\..\\js\\kumir.js', "utf8"));
+			eval(require('fs').readFileSync(require('path').join(__dirname, '..', 'js', 'kumir.js'), "utf8"));
 			g.$$RunKumir_try = RunKumir_try;
 			g.$$GetErrorKumir = ()=>ErrorKumir;
 		} else {
