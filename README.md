@@ -128,14 +128,17 @@ docker stop webKumir
 - \/.github
     - \/workflows
         - jekyll-gh-pages.yml
+- .gitignore
+- LICENSE
+- README.md
+- AUTORUN.bat
+- UNIX_AUTORUN
+- Dockerfile
 - launcher_v2.js
 - settings.json
-- AUTORUN.bat
-- Dockerfile
-- readme.md
-- UNIX_AUTORUN
-- .gitignore
 
+# Лицензия
+Данный проект лицензирован по лицензии MIT — подробности см. в файле LICENSE.
 
 # Улучшения связаные с переходом V3 на V4
 1. Возможность редактирования проектов (карт, задач, тестов).
