@@ -756,6 +756,15 @@ case 'div':
 							Asm_steck.push([MyTypeOf(_i1-_i2),_i1-_i2,_out_s]);
 							i_step++;
 							break;
+						case "~":
+							var _st1=Asm_steck.pop();
+							var _i1=v(['b','i','f'],_st1);
+							var _out_s='-('+_i1+')';
+							if (_st1[0]!='v')
+								_out_s='-('+_st1[2]+')';
+							Asm_steck.push([MyTypeOf(-_i1),-_i1,_out_s]);
+							i_step++;
+							break;
 						case "*":
 							var _st2=Asm_steck.pop();
 							var _st1=Asm_steck.pop();
@@ -1631,10 +1640,27 @@ function parseFormula(a, num_output, use_f, use_v, need_type) {
 	outFormula,
 	stack,
 	operators;
-	operators = ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||'];
-	ParseOperators = [['!'], ['!', '**'], ['!', '**', '*', '/'], ['!', '**', '*', '/'], ['!', '**', '*', '/', '+', '-'], ['!', '**', '*', '/', '+', '-'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||'], ['!', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||']];
+	operators = ['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||'];
+	ParseOperators = [
+		[], // !
+		[], // ~
+		['!', '~', '**'], // **
+		['!', '~', '**', '*', '/'], // *
+		['!', '~', '**', '*', '/'], // /
+		['!', '~', '**', '*', '/', '+', '-'], // +
+		['!', '~', '**', '*', '/', '+', '-'], // -
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // <=
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // >=
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // <>
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // =
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // <
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>'], // >
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||'], // &&
+		['!', '~', '**', '*', '/', '+', '-', '<=', '>=', '<>', '=', '<', '>', '&&', '||']  // ||
+	];
 	outFormula = [];
 	stack = [];
+	var expectValue = true;
 	function ItisName(s) {
 
 		var dop = false,
@@ -1719,6 +1745,12 @@ function parseFormula(a, num_output, use_f, use_v, need_type) {
 			return;
 		}
 		a = a.substring(a.indexOf(token[0]) + token[0].length, a.length);
+		
+		if (token[1] == 'N' || token[1] == 'V' || token[1] == ')')
+			expectValue = false;
+		if (token[1] == '(' || token[1] == 'Z')
+			expectValue = true;
+		
 		if (token[1] == 'V') //value
 		{
 			if ((use_f == undefined) || (use_v == undefined))
@@ -1765,13 +1797,19 @@ function parseFormula(a, num_output, use_f, use_v, need_type) {
 					} else
 						if (token[1] == 'O') //operators 'и','или','<=','>=','<>','**','*','/','+','-']
 						{
+							if (token[0] == '-' && expectValue)
+								// - x -> [x, ~]
+								token[0] = '~';
+							
 							while (stack.length > 0 && ((stack[stack.length - 1][1] == 'O' && ParseOperators[operators.indexOf(token[0])].indexOf(stack[stack.length - 1][0]) != -1) || (stack[stack.length - 1][1] == 'F'))) {
 								outFormula.push(stack.pop()[0]);
 								if (stack.length == 0) {
 									break;
 								}
 							}
+							
 							stack.push(token);
+							expectValue = true;
 						} else
 							if (token[1] == '(') //(
 							{
@@ -1953,6 +1991,26 @@ function parseFormula(a, num_output, use_f, use_v, need_type) {
 									return_s+='$INT -\n';
 									stack.push('(' + v2 + ')-(' + v1 + ')');
 								} else
+								if (outFormula[i] == '~') {
+									if (stack.length < 1) {
+										persing_log += 'Неправильное использование унарного оператора "-". \r\n'
+										return;
+									}
+									var v1 = stack.pop();
+									var v1_2 = stack2.pop();
+									if ((v1_2=='вещ'||v1_2=='цел'))
+									{}else
+									{
+										persing_log += 'Унарный оператора "-" работает только с "вещ" и "цел" типами. \r\n'
+										return;
+									}
+									if (v1_2=='цел')
+										stack2.push('цел');
+									else
+										stack2.push('вещ');
+									return_s+='$INT ~\n';
+									stack.push('-(' + v1 + ')');
+								} else
 									if (['<=', '>=', '<>', '=', '<', '>', '&&', '||'].indexOf(outFormula[i]) != -1) {
 										if (stack.length < 2) {
 											persing_log += 'Неправильное использование оператора "' + outFormula[i] + '". \r\n'
@@ -2062,6 +2120,7 @@ function parseFormula(a, num_output, use_f, use_v, need_type) {
 	//console.log(stack[0]);
 	return return_s;
 }
+
 function RunKumir(s, map) {
 	try {
 		RunKumir_try(s, map);
