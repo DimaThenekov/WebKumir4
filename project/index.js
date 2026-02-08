@@ -1,4 +1,4 @@
-const VERSION = "4_000";
+const VERSION = "4_004";
 
 const { workerData, parentPort } = require('worker_threads');
 const fs = require('fs');

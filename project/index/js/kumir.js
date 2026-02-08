@@ -2816,16 +2816,6 @@ function RunKumir_try(s, map) {
 															}
 														}
 													} else
-														if (GetIn(" " + no_alg_str, " ", ":=") != "") //имя:=выражение
-														{
-															if (!ItisName(GetIn(" " + no_alg_str, " ", ":=")))
-															{
-																add_err(GetIn(" " + no_alg_str, " ", ":=") + ' не имя! ', i);
-																mybreak = true;
-																continue;
-															}
-															prog_pars[prog_pars.length-1][7].push(["@:=", TranslName(GetIn(" " + no_alg_str, " ", ":=").trim()), GetIn(no_alg_str, ":=", "")]);
-														} else
 															if (no_alg_str.indexOf("вывод ") == 0) {
 																prog_pars[prog_pars.length-1][7].push(["@output", GetIn(no_alg_str, "вывод ", "").trim()]);
 															} else
@@ -2973,6 +2963,32 @@ function RunKumir_try(s, map) {
 																									if (end != "")
 																										comand.unshift(end.trim());
 																								} else
+																									if (GetIn(" " + no_alg_str, " ", ":=") != "") //имя:=выражение
+																									{
+																										if (!ItisName(GetIn(" " + no_alg_str, " ", ":=")))
+																										{
+																											add_err(GetIn(" " + no_alg_str, " ", ":=") + ' не имя! ', i);
+																											mybreak = true;
+																											continue;
+																										}
+																										var EOFS = [' все ', ' всё ', ' кц '];
+																										var bestEOF = '';
+																										var value = GetIn(no_alg_str, ":=", "");
+																										var bestEOFind = 10000000;
+
+																										for (let eofi = 0; eofi<EOFS.length; eofi++) {
+																											if (value.indexOf(EOFS[eofi])!=-1 && bestEOFind>value.indexOf(EOFS[eofi])) {
+																												bestEOFind=value.indexOf(EOFS[eofi]);
+																												bestEOF = EOFS[eofi];
+																											}
+																										}
+
+																										prog_pars[prog_pars.length-1][7].push(["@:=", TranslName(GetIn(" " + no_alg_str, " ", ":=").trim()), GetIn(no_alg_str, ":=", bestEOF)]);
+																										if (bestEOF) {
+																											var end = GetIn(GetIn(" "+no_alg_str+" ", ":=", ""), bestEOF, "").trim();
+																											comand.unshift(bestEOF+end.trim());
+																										}
+																									} else
 																									if (ItisName(no_alg_str)) {
 																										prog_pars[prog_pars.length-1][7].push(["@procedure", TranslName(no_alg_str.trim().trim()), '']);
 																									} else
